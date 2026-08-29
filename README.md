@@ -17,6 +17,8 @@ matches the request.
 ## What it enforces
 
 - Current SERP research is kept separate from factual sources.
+- Query choice, search intent, competitor gap, and source plan are recorded as
+  reviewable decisions rather than inferred from a keyword score.
 - Material claims have a source and a verification trail.
 - Keyword volume, difficulty, pricing, product capabilities, reviews, and
   publication state are never invented.
@@ -30,7 +32,9 @@ matches the request.
 
 - `SKILL.md` — the entry point and operating contract.
 - `references/` — mode-specific research, editorial, media, publishing, and
-  measurement rules.
+  measurement rules, including the Lite/Full article methodology.
+- `examples/` — a concise annotated run walkthrough; use it to understand the
+  artifact order, never as evidence for a new article.
 - `scripts/` — offline validators and a run initializer.
 - `schemas/` — JSON Schema contracts for run artifacts.
 - `evals/` — adversarial and regression tests.
@@ -55,10 +59,13 @@ environment, when available.
 
 1. Start a run and record scope, permissions, locale, destination, and risk.
 2. Record available providers or fallbacks without exposing credentials.
-3. Capture the current SERP, build source and claim ledgers, then draft.
-4. Run independent claim, editorial, media, technical, and qualified review
+3. Select the query, capture current intent, document a real gap, and build a
+   source plan before drafting.
+4. Build the evidence-bound brief, then write the article and optional
+   visual/data plan.
+5. Run independent claim, editorial, media, technical, and qualified review
    where required.
-5. Repair findings, package the final deliverables, and validate the run.
-6. Publish only with recorded permission; verify the live URL separately.
+6. Repair findings, package the final deliverables, and validate the run.
+7. Publish only with recorded permission; verify the live URL separately.
 
 See `SKILL.md` for routing and `references/` for the detailed contracts.

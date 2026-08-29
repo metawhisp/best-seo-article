@@ -229,6 +229,9 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
     }
     write_jsonl(root / "research/sources.jsonl", [source])
     write_jsonl(root / "claims.jsonl", [claim])
+    write_text(root / "research/query-decision.md", "# Query decision\n\nThe supplied reader job and observed SERP support the selected informational query; no same-intent page is known in the supplied corpus.\n")
+    write_text(root / "research/intent-gap.md", "# Intent and gap\n\nOpened results show an informational intent. The draft adds an evidence-led decision boundary rather than repeating headings.\n")
+    write_text(root / "research/source-plan.md", "# Source plan\n\nUse the official documentation for the only load-bearing factual claim and remove unsupported product assertions.\n")
     write_text(root / "opportunity.md", "# Opportunity\n\nNo same-intent page was found in the supplied corpus.\n")
     write_text(root / "brief.md", "# Brief\n\nHelp editors build evidence-led content.\n")
     write_text(root / "outline.md", "# Outline\n\n## Evidence\n\nMaps to C1.\n")

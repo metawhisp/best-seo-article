@@ -15,6 +15,23 @@ Record enough context to reproduce important findings:
 
 Use search results and competitor pages for intent and coverage analysis. Follow facts to the best available direct source rather than citing a search snippet or copying the ranking page's wording.
 
+Before writing the brief, create the three human-readable decision artifacts:
+
+- `research/query-decision.md`: candidates, reader job, observed intent,
+  site-overlap check, evidence advantage, and `selected`/`hold`/
+  `recommend-rewrite` verdict.
+- `research/intent-gap.md`: dated SERP context, opened-result matrix, dominant
+  intent, reader stage, minimum answer, real information gain, and no-go
+  condition.
+- `research/source-plan.md`: load-bearing sections, preferred source type,
+  volatility, snapshot need, first-party disclosure needs, and fallback when
+  direct support is absent.
+
+These artifacts capture the reasoning a schema cannot prove. At
+`content-ready` and above they must be substantive and contain no unresolved
+placeholder, but a validator cannot certify that their conclusion is wise.
+Read `methodology.md` for the exact decision procedure.
+
 ## Source ledger
 
 Maintain one record per source:
@@ -94,14 +111,15 @@ Represent a first-party claim through its factual classification and a `first-pa
 
 ## Evidence workflow
 
-1. Define the user question, likely answer types, and volatile claim categories.
-2. Capture a dated search-intent snapshot where current search access exists, mark it `agent-web` or `user-provided`, and respect the recorded web-research permission.
-3. Create the initial source ledger before drafting conclusions.
-4. Build the brief and outline from observed user needs and supported evidence.
-5. Create planned claim records for assertions that will carry the answer.
-6. Draft from the approved research packet; add new claims to the ledger as they appear.
-7. Have an independent verifier inspect the article, claim ledger, and actual sources.
-8. Resolve unsupported, partial, stale, or contradictory claims before editorial approval.
+1. Define the user question, candidate queries, likely answer types, and volatile claim categories.
+2. Inspect relevant existing coverage, record the query decision, and recommend a mode change when the user job already has a strong home on the site.
+3. Capture a dated search-intent snapshot where current search access exists, mark it `agent-web` or `user-provided`, and respect the recorded web-research permission. Open the leading relevant results and record the intent-gap matrix.
+4. Plan the evidence before drafting conclusions, including permitted first-party proof and source-snapshot needs.
+5. Create the initial source ledger and planned claim records for assertions that will carry the answer.
+6. Build the brief and outline from observed user needs, source plan, and supported evidence.
+7. Draft from the approved research packet; add new claims to the ledger as they appear.
+8. Have an independent verifier inspect the article, claim ledger, and actual sources.
+9. Resolve unsupported, partial, stale, or contradictory claims before editorial approval.
 
 The verifier must not rely on the writer's confidence or a target score. It should record the exact source location or reasoning that supports each decision.
 

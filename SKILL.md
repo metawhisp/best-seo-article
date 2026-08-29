@@ -35,6 +35,14 @@ Read [references/modes.md](references/modes.md) for mode-specific safeguards.
 
 Read [references/intake-and-statuses.md](references/intake-and-statuses.md). Normalize the request before research. A topic or source URL is required; conditional inputs such as locale, product facts, expert review, site corpus, or destination are required only when the article makes them material.
 
+Choose an operating depth before collecting evidence: use **Lite** for a bounded
+informational article with low consequence and **Full** for commercial,
+comparison, pillar, linkable, high-stakes, or first-party-claim work. Lite is
+not a shortcut around truth, intent, source, or editorial gates; it only avoids
+collecting artifacts that cannot change the decision. Read
+[references/methodology.md](references/methodology.md) for the exact input,
+query-selection, intent-gap, craft, E-E-A-T, answer-engine, and visual rules.
+
 Run the free capability probe when tool availability matters:
 
 ```bash
@@ -51,19 +59,19 @@ The workflow does not require a paid SEO platform. Start with current public pag
 
 1. Create the run manifest and intake; bind their shared identity, YMYL risk/jurisdiction, roles, exact destination, protected rewrite scope, requested maximum status, and permissions before research.
 2. For `rewrite` or `refresh`, preserve the original page and baseline before editing.
-3. Inspect the owned-site corpus, sitemap, exports, and relevant queries for overlap. Recommend a mode change instead of silently creating a cannibalizing page.
-4. Capture a dated SERP and source snapshot appropriate to the language, locale, and device. Declare whether each was agent-acquired or user-provided. A content-ready SERP snapshot is at most 31 days old; refresh sooner for volatile intent. Open primary pages; do not rely on snippets alone.
-5. Build source and claim ledgers before drafting load-bearing factual sections.
-6. Write a brief with reader job, primary intent, information gain, exclusions, internal journey, conversion goal, and acceptance criteria.
-7. Plan only media that explains, proves, compares, or enables an action. Read [references/visuals-and-data.md](references/visuals-and-data.md) when media, screenshots, tables, charts, diagrams, or video are relevant.
+3. Inspect the owned-site corpus, sitemap, exports, and relevant queries for overlap. Compare candidate queries against the reader job, business relevance, observed SERP, evidence advantage, and cannibalization risk in `research/query-decision.md`. Recommend a mode change instead of silently creating a cannibalizing page.
+4. Capture a dated SERP and source snapshot appropriate to the language, locale, and device. Declare whether each was agent-acquired or user-provided. Open the leading relevant results; do not rely on snippets alone. Record the observed intent, formats, reader constraints, and top-five coverage gap in `research/intent-gap.md`. A content-ready SERP snapshot is at most 31 days old; refresh sooner for volatile intent.
+5. Build a source plan, then source and claim ledgers before drafting load-bearing factual sections. Treat a first-party assertion as publishable evidence only when its owner, scope, date, method, and disclosure permission are recorded.
+6. Write a brief with reader job, primary intent, information gain, exclusions, internal journey, conversion goal, and acceptance criteria. Design the answer before writing the introduction.
+7. Plan only media that explains, proves, compares, or enables an action. Read [references/visuals-and-data.md](references/visuals-and-data.md) when media, screenshots, tables, charts, diagrams, or video are relevant. A visual count is never a quality target.
 8. Create an evidence-bound outline. Every material section must map to a reader need and approved evidence or be explicitly opinion/inference.
-9. Draft from the approved brief and ledgers. Internal `[NEEDS EVIDENCE]` markers may guide repair but block delivery.
-10. Run an independent claim verification pass, then editorial, SEO, YMYL when applicable, media, and technical checks. Record machine-verifiable verdicts in bound JSON review records; keep `reviews/editorial.md` as human-readable notes, not the approval itself.
+9. Draft from the approved brief and ledgers. Give the direct answer early, show the decision criteria or procedure, make trade-offs legible, and offer only an earned next step. Internal `[NEEDS EVIDENCE]` markers may guide repair but block delivery.
+10. Run an independent claim verification pass, then editorial, SEO, YMYL when applicable, media, and technical checks. The human editorial rubric tests answer quality, information gain, practical utility, voice, and conversion fit; it is not replaceable by a word count or aggregate score. Record machine-verifiable verdicts in bound JSON review records; keep `reviews/editorial.md` as human-readable notes, not the approval itself.
 11. Repair only the affected claims or sections, rerun their checks, and retain the audit trail.
 12. Package for the real destination. Create a CMS draft or publish only within the recorded permission boundary.
 13. After publication, verify the live page; later, use `measurement-v1` with checksummed source evidence, equal half-open windows, matching timezone and grain, and exact metric descriptors. Bind the receipt to the final package manifest, live verification to both package and receipt, the baseline to the package, and each snapshot to the package plus live record. Do not claim causality from a before/after snapshot.
 
-Read [references/research-and-evidence.md](references/research-and-evidence.md) for source and claim rules and [references/editorial-contract.md](references/editorial-contract.md) for drafting and review.
+Read [references/research-and-evidence.md](references/research-and-evidence.md) for source and claim rules, [references/methodology.md](references/methodology.md) for the decision method, and [references/editorial-contract.md](references/editorial-contract.md) for drafting and review.
 
 ## Risk routing
 

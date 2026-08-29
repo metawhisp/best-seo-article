@@ -27,6 +27,22 @@ Use this reference at the start of every run. Normalize the request before resea
 | `success_criteria` | Optional | Define in the brief before drafting. Do not substitute a universal SEO score. |
 | `constraints` | Optional | Preserve approved claims, prohibited claims, required disclosures, format constraints, and URLs. |
 
+## Operating depth
+
+Select `Lite` or `Full` before research and record the reason in the brief.
+This is a scope decision, not a claim that one path is more truthful than the
+other.
+
+| Condition | Default depth | Minimum additional work |
+|---|---|---|
+| One bounded, low-risk informational reader job with no comparison, proprietary result, high-stakes advice, or large site decision | Lite | A dated SERP, selected-query decision, intent-gap note, source plan, ledgers, and independent editorial review. |
+| Comparison, commercial investigation, pillar, linkable asset, first-party proof, substantial rewrite, multi-intent page, or high-cost decision | Full | Lite work plus broader site-overlap review, a deeper competitor matrix, source snapshots where load-bearing, internal-link plan, and visual/data decision. |
+| Medical, legal, tax, finance, investment, insurance, safety-critical, or other consequential content | Full | The applicable qualified reviewer and jurisdiction are mandatory. |
+
+Do not choose Lite merely because a paid provider is unavailable. Missing
+providers reduce what can be concluded, not what must be disclosed. Read
+`methodology.md` for the exact decision procedure.
+
 ## Precedence
 
 For scope, tone, and format:

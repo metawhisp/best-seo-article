@@ -12,6 +12,9 @@ article-run/
 │   └── snapshot.json
 ├── research/
 │   ├── serp.json
+│   ├── query-decision.md
+│   ├── intent-gap.md
+│   ├── source-plan.md
 │   ├── sources.jsonl
 │   └── audience-language.md
 ├── opportunity.md
@@ -51,7 +54,7 @@ article-run/
 | `draft-only` | `manifest.json`, `intake.json`, `drafts/final.md` |
 | `needs-evidence` | Draft requirements plus `claims.jsonl`, `research/sources.jsonl` |
 | `needs-expert-review` | Content-ready artifacts except an approved YMYL review; `reviews/ymyl.json` records the missing gate |
-| `content-ready` | Draft requirements plus `capabilities.json`, `opportunity.md`, `brief.md`, `outline.md`, `research/serp.json`, source and claim ledgers, bound `reviews/verification.json`, bound `reviews/editorial.json`, and human-readable `reviews/editorial.md` notes |
+| `content-ready` | Draft requirements plus `capabilities.json`, `opportunity.md`, `brief.md`, `outline.md`, `research/serp.json`, `research/query-decision.md`, `research/intent-gap.md`, `research/source-plan.md`, source and claim ledgers, bound `reviews/verification.json`, bound `reviews/editorial.json`, and human-readable `reviews/editorial.md` notes |
 | `publish-package-ready` | Content-ready artifacts plus `publish/article.*`, metadata, schema decision, publish manifest, and technical review |
 | `published-pending-verification` | Package requirements plus explicit publish permission, destination URL, and publish receipt/event |
 | `verified-live` | Published requirements plus `reviews/live-verification.json` with URL, retrieval time, HTTP, rendered-content, canonical, indexability, schema, link, and asset results |

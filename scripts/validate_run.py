@@ -3420,7 +3420,7 @@ def main() -> int:
         required_roles = ("writer", "verifier", "editor")
         if not isinstance(roles, dict) or any(not substantive_actor_identity(roles.get(role)) for role in required_roles):
             findings.append(finding("ROLE_ASSIGNMENTS_INVALID", "P1", "Content-ready work requires non-empty writer, verifier, and editor role identities"))
-        for relative in ("capabilities.json", "opportunity.md", "brief.md", "outline.md", "research/serp.json", "research/sources.jsonl", "claims.jsonl", "reviews/verification.json", "reviews/editorial.md"):
+        for relative in ("capabilities.json", "opportunity.md", "brief.md", "outline.md", "research/serp.json", "research/query-decision.md", "research/intent-gap.md", "research/source-plan.md", "research/sources.jsonl", "claims.jsonl", "reviews/verification.json", "reviews/editorial.md"):
             artifact = require_file(root, relative, findings)
             if artifact and artifact.suffix == ".md":
                 artifact_text = artifact.read_text(encoding="utf-8")

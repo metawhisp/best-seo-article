@@ -73,6 +73,27 @@ digital signature.
 - Make metadata accurately represent the page instead of optimizing for a fixed character quota.
 - For rewrites and refreshes, review the semantic diff and protected elements before approval.
 
+## Human quality rubric
+
+Review usefulness before calling a draft editorially passed. In
+`reviews/editorial.md`, record a concise, evidence-based `pass` or `repair`
+verdict for each of these dimensions:
+
+| Dimension | Pass condition |
+|---|---|
+| Answer and intent | The article answers the primary reader job early and preserves the conditions needed to make the answer true. |
+| Truth and boundaries | Material claims are entailed, uncertainty is visible, and product or first-party assertions are not overstated. |
+| Information gain | The reader gets a real decision aid, evidence path, method, or constraint not achieved merely by longer coverage. |
+| Practical utility | Steps, criteria, examples, or comparisons let a reader act without hidden assumptions. |
+| Clarity and voice | The wording is specific, readable, original, and consistent with the verified brand voice or neutral fallback. |
+| Journey and conversion | Internal links and CTA appear after the answer, help the next reader action, and make no unsupported promise. |
+
+The reviewer must explain every `repair` verdict and escalate it as P0-P3 when
+it affects truth, safety, user intent, packaging, or an honest delivery status.
+Do not turn these dimensions into a keyword-density, word-count, or automatic
+aggregate-score gate. Read `methodology.md` for query, gap, E-E-A-T,
+answer-engine, and visual decisions.
+
 ## Severity gates
 
 Each finding must record its severity, evidence, affected artifact, required resolution, owner, and final state.
