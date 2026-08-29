@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:best-seo-article:schema:intake:0.1",
+  "title": "Best SEO Article intake",
+  "description": "Provider-neutral, offline-validatable intake contract bound to one article run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "mode",
+    "target",
+    "language",
+    "locale",
+    "site",
+    "risk",
+    "roles",
+    "protected",
+    "destination",
+    "requested_status",
+    "permissions",
+    "audience",
+    "reader_job",
+    "business_goal",
+    "conversion_action",
+    "approved_product_facts",
+    "constraints",
+    "inferences_requiring_confirmation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9]",
+      "not": {"pattern": "[^A-Za-z0-9._-]"},
+      "x-unicode-substantive": true
+    },
+    "mode": {
+      "enum": ["new", "rewrite", "refresh", "external"]
+    },
+    "target": {
+      "$ref": "#/$defs/substantiveString"
+    },
+    "language": {
+      "$ref": "#/$defs/substantiveString"
+    },
+    "locale": {
+      "$ref": "#/$defs/nullableSubstantiveString"
+    },
+    "site": {
+      "oneOf": [
+        {"$ref": "#/$defs/documentUrl"},
+        {"type": "null"}
+      ]
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ymyl", "jurisdiction"],
+      "properties": {
+        "ymyl": {"enum": ["auto", true, false]},
+        "jurisdiction": {"$ref": "#/$defs/nullableSubstantiveString"}
+      }
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writer", "verifier", "editor", "technical_reviewer", "expert_reviewer"],
+      "properties": {
+        "writer": {"$ref": "#/$defs/nullableSubstantiveString"},
+        "verifier": {"$ref": "#/$defs/nullableSubstantiveString"},
+        "editor": {"$ref": "#/$defs/nullableSubstantiveString"},
+        "technical_reviewer": {"$ref": "#/$defs/nullableSubstantiveString"},
+        "expert_reviewer": {"$ref": "#/$defs/nullableSubstantiveString"}
+      }
+    },
+    "protected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewed", "rationale", "empty_selection_approved", "headings", "links"],
+      "properties": {
+        "reviewed": {"type": "boolean"},
+        "rationale": {"$ref": "#/$defs/nullableSubstantiveString"},
+        "empty_selection_approved": {"type": "boolean"},
+        "headings": {"$ref": "#/$defs/substantiveStringList"},
+        "links": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "url", "cms"],
+      "properties": {
+        "format": {"enum": ["markdown", "mdx", "html"]},
+        "url": {"oneOf": [{"$ref": "#/$defs/documentUrl"}, {"type": "null"}]},
+        "cms": {"$ref": "#/$defs/nullableSubstantiveString"}
+      }
+    },
+    "requested_status": {
+      "enum": ["blocked", "draft-only", "needs-evidence", "needs-expert-review", "content-ready", "publish-package-ready", "published-pending-verification", "verified-live", "measured"]
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web_research", "paid_tools", "cms_draft", "publish", "url_change"],
+      "properties": {
+        "web_research": {"type": "boolean"},
+        "paid_tools": {"type": "boolean"},
+        "cms_draft": {"type": "boolean"},
+        "publish": {"type": "boolean"},
+        "url_change": {"type": "boolean"}
+      }
+    },
+    "audience": {
+      "$ref": "#/$defs/nullableSubstantiveString"
+    },
+    "reader_job": {
+      "$ref": "#/$defs/nullableSubstantiveString"
+    },
+    "business_goal": {
+      "$ref": "#/$defs/nullableSubstantiveString"
+    },
+    "conversion_action": {
+      "$ref": "#/$defs/nullableSubstantiveString"
+    },
+    "approved_product_facts": {
+      "$ref": "#/$defs/substantiveStringList"
+    },
+    "constraints": {
+      "$ref": "#/$defs/substantiveStringList"
+    },
+    "inferences_requiring_confirmation": {
+      "$ref": "#/$defs/substantiveStringList"
+    }
+  },
+  "$defs": {
+    "documentUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://(?:(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|(?:(?![xX][nN]--)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)*(?![xX][nN]--)[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?::(?:[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?(?:[/?#][^\\s\\\\]*)?$",
+      "not": {
+        "anyOf": [
+          {"pattern": "[\\u0000-\\u001F\\u007F]"},
+          {"pattern": "#"},
+          {"pattern": "%(?:2[fF]|5[cC])"},
+          {"pattern": "%(?![0-9A-Fa-f]{2})"},
+          {"pattern": "/(?:\\.|%2[eE])(?:\\.|%2[eE])?(?:/|[?#]|$)"}
+        ]
+      }
+    },
+    "substantiveString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-unicode-substantive": true
+    },
+    "nullableSubstantiveString": {
+      "anyOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/substantiveString"}
+      ]
+    },
+    "substantiveStringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/substantiveString"
+      }
+    }
+  },
+  "$comment": "Identity fields are required on every intake and must equal their manifest counterparts. Cross-file binding plus the x-unicode-substantive extension are enforced by scripts/validate_run.py; the schema remains self-contained and requires no network resolution."
+}

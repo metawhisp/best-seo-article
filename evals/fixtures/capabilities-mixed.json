@@ -1,0 +1,279 @@
+{
+  "schema_version": "0.1",
+  "checked_at": "2026-08-29T00:00:00Z",
+  "generated_by": "capability_preflight.py",
+  "policy": {
+    "network_calls_made": false,
+    "secret_values_emitted": false,
+    "paid_use_requires_explicit_approval": true,
+    "unknown_cost_requires_explicit_approval": true
+  },
+  "capabilities": {
+    "serp": {
+      "status": "AVAILABLE",
+      "selected_provider": "serpapi",
+      "selected_by": "environment",
+      "candidate": {
+        "provider": "serpapi",
+        "probe": {
+          "kind": "environment",
+          "references": [
+            "SERPAPI_API_KEY"
+          ],
+          "present": true,
+          "present_count": 1,
+          "required_count": 1
+        },
+        "cost": {
+          "kind": "paid",
+          "approval_required": true,
+          "approved": true
+        }
+      },
+      "reason_code": "EXPLICIT_CAPABILITY_AVAILABLE",
+      "absence_effect": "Use a dated manual browser snapshot; limit claims to the observed query, locale, device, and results, without implying exhaustive or repeatable rank tracking."
+    },
+    "keywords": {
+      "status": "FALLBACK",
+      "selected_provider": "first-party-semantic-research",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Build a semantic map from first-party inputs only; leave volume, CPC, and difficulty unavailable."
+    },
+    "gsc": {
+      "status": "USER_EXPORT",
+      "selected_provider": "gsc-csv",
+      "selected_by": "user-export",
+      "candidate": {
+        "provider": "gsc-csv",
+        "probe": {
+          "kind": "file",
+          "references": [
+            "/tmp/best-seo-article-gsc-export.csv"
+          ],
+          "present": true,
+          "present_count": 1,
+          "required_count": 1
+        },
+        "cost": {
+          "kind": "free",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "USER_EXPORT_PRESENT",
+      "absence_effect": "No existing-query, cannibalization, or Google post-publish baseline; keep GSC measurement pending."
+    },
+    "ga4": {
+      "status": "UNAVAILABLE",
+      "selected_provider": null,
+      "selected_by": "none",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "NO_PROVIDER_OR_EXPORT",
+      "absence_effect": "Do not claim engagement or conversion lift; keep GA4 measurement pending."
+    },
+    "crawl": {
+      "status": "AVAILABLE",
+      "selected_provider": "local-bounded-crawler",
+      "selected_by": "explicit-flag",
+      "candidate": {
+        "provider": "local-bounded-crawler",
+        "probe": {
+          "kind": "explicit-flag",
+          "references": [
+            "local-bounded-crawler"
+          ],
+          "present": true,
+          "present_count": 1,
+          "required_count": 1
+        },
+        "cost": {
+          "kind": "free",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "EXPLICIT_CAPABILITY_AVAILABLE",
+      "absence_effect": "Limit conclusions to explicitly inspected URLs; do not claim full-site or orphan-page coverage."
+    },
+    "cwv": {
+      "status": "FALLBACK",
+      "selected_provider": "manual-performance-checklist",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Do not report Core Web Vitals; keep performance QA incomplete."
+    },
+    "fact_check": {
+      "status": "AVAILABLE",
+      "selected_provider": "manual-primary-source",
+      "selected_by": "explicit-flag",
+      "candidate": {
+        "provider": "manual-primary-source",
+        "probe": {
+          "kind": "explicit-flag",
+          "references": [
+            "primary-source-browser"
+          ],
+          "present": true,
+          "present_count": 1,
+          "required_count": 1
+        },
+        "cost": {
+          "kind": "free",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "EXPLICIT_CAPABILITY_AVAILABLE",
+      "absence_effect": "Remove, qualify, or mark unsupported material claims; unresolved YMYL claims block editorial readiness."
+    },
+    "images": {
+      "status": "FALLBACK",
+      "selected_provider": "image-brief-and-owned-assets",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": "openai-gpt-image",
+        "probe": {
+          "kind": "environment",
+          "references": [
+            "OPENAI_API_KEY"
+          ],
+          "present": true,
+          "present_count": 1,
+          "required_count": 1
+        },
+        "cost": {
+          "kind": "paid",
+          "approval_required": true,
+          "approved": false
+        }
+      },
+      "reason_code": "COST_APPROVAL_REQUIRED_FALLBACK_SELECTED",
+      "absence_effect": "Return image briefs, dimensions, alt text, and provenance requirements; do not invent image files or URLs."
+    },
+    "charts": {
+      "status": "AVAILABLE",
+      "selected_provider": "local-svg",
+      "selected_by": "explicit-flag",
+      "candidate": {
+        "provider": "local-svg",
+        "probe": {
+          "kind": "explicit-flag",
+          "references": [
+            "stdlib-svg"
+          ],
+          "present": true,
+          "present_count": 1,
+          "required_count": 1
+        },
+        "cost": {
+          "kind": "free",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "EXPLICIT_CAPABILITY_AVAILABLE",
+      "absence_effect": "Return a sourced table or chart specification only; do not chart missing data."
+    },
+    "cms": {
+      "status": "FALLBACK",
+      "selected_provider": "cms-neutral-publish-package",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Create an agreed portable package or stop at content-ready; never claim CMS validation or publication."
+    }
+  },
+  "limitations": [
+    "keywords [FALLBACK]: Build a semantic map from first-party inputs only; leave volume, CPC, and difficulty unavailable.",
+    "ga4 [UNAVAILABLE]: Do not claim engagement or conversion lift; keep GA4 measurement pending.",
+    "cwv [FALLBACK]: Do not report Core Web Vitals; keep performance QA incomplete.",
+    "images [FALLBACK]: Return image briefs, dimensions, alt text, and provenance requirements; do not invent image files or URLs.",
+    "cms [FALLBACK]: Create an agreed portable package or stop at content-ready; never claim CMS validation or publication."
+  ],
+  "summary": {
+    "counts": {
+      "AVAILABLE": 4,
+      "USER_EXPORT": 1,
+      "FALLBACK": 4,
+      "UNAVAILABLE": 1
+    },
+    "usable_capabilities": [
+      "serp",
+      "keywords",
+      "gsc",
+      "crawl",
+      "cwv",
+      "fact_check",
+      "images",
+      "charts",
+      "cms"
+    ],
+    "unavailable_capabilities": [
+      "ga4"
+    ],
+    "cost_approval_blocked_capabilities": [
+      "images"
+    ],
+    "all_capabilities_usable": false,
+    "degraded": true
+  }
+}

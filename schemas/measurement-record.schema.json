@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:best-seo-article:schema:measurement-v1",
+  "title": "Best SEO Article measurement record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "run_id",
+    "record_type",
+    "page",
+    "mode",
+    "package_manifest_sha256",
+    "measured_at",
+    "comparison_window",
+    "source_evidence",
+    "metrics",
+    "data_limitations"
+  ],
+  "properties": {
+    "contract_version": {"const": "measurement-v1"},
+    "run_id": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9]", "not": {"pattern": "[^A-Za-z0-9._-]"}},
+    "record_type": {"enum": ["baseline", "snapshot"]},
+    "page": {"$ref": "#/$defs/document_url"},
+    "mode": {"enum": ["new", "rewrite", "refresh", "external"]},
+    "package_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "live_verification_sha256": {"$ref": "#/$defs/sha256"},
+    "measured_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "comparison_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end_exclusive", "timezone", "grain"],
+      "properties": {
+        "start": {"type": "string", "format": "date"},
+        "end_exclusive": {"type": "string", "format": "date"},
+        "timezone": {"$ref": "#/$defs/safe_string"},
+        "grain": {"$ref": "#/$defs/machine_token"}
+      }
+    },
+    "source_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/evidence"}
+    },
+    "metrics": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/machine_token"},
+      "additionalProperties": {"$ref": "#/$defs/metric"}
+    },
+    "data_limitations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/safe_string"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "snapshot"}}, "required": ["record_type"]},
+      "then": {"required": ["live_verification_sha256"]},
+      "else": {"not": {"required": ["live_verification_sha256"]}}
+    }
+  ],
+  "$defs": {
+    "document_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://(?:(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|(?:(?![xX][nN]--)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)*(?![xX][nN]--)[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?::(?:[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?(?:[/?#][^\\s\\\\]*)?$",
+      "not": {
+        "anyOf": [
+          {"pattern": "[\\u0000-\\u001F\\u007F]"},
+          {"pattern": "#"},
+          {"pattern": "%(?:2[fF]|5[cC])"},
+          {"pattern": "%(?![0-9A-Fa-f]{2})"},
+          {"pattern": "/(?:\\.|%2[eE])(?:\\.|%2[eE])?(?:/|[?#]|$)"}
+        ]
+      }
+    },
+    "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}, "pattern": "^[0-9a-f]{64}$"},
+    "safe_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F\\u061C\\u180E\\u200B\\u200E\\u200F\\u2028-\\u202E\\u2060-\\u2069\\uFEFF]+(?![\\s\\S])",
+      "not": {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFFB]"}
+    },
+    "provider_label": {
+      "allOf": [
+        {"$ref": "#/$defs/safe_string"},
+        {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+ -]*$"}
+      ]
+    },
+    "machine_token": {
+      "allOf": [
+        {"$ref": "#/$defs/safe_string"},
+        {"pattern": "^[a-z][a-z0-9:_-]*$"}
+      ]
+    },
+    "dimension_string": {
+      "allOf": [
+        {"$ref": "#/$defs/safe_string"},
+        {"pattern": "\\S"}
+      ]
+    },
+    "dimension_value": {
+      "oneOf": [
+        {"$ref": "#/$defs/dimension_string"},
+        {"type": "number"},
+        {"type": "boolean"}
+      ]
+    },
+    "dimension_map": {
+      "type": "object",
+      "propertyNames": {"$ref": "#/$defs/machine_token"},
+      "additionalProperties": {"$ref": "#/$defs/dimension_value"}
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "source_system", "provider", "path", "sha256", "extracted_at"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/machine_token"},
+        "source_system": {"enum": ["gsc", "ga4"]},
+        "provider": {"$ref": "#/$defs/provider_label"},
+        "path": {
+          "type": "string",
+          "pattern": "^measurement/evidence/(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))(?!.*//)(?!.*\\/$)[^\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8\\\\]+(?![\\s\\S])"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "extracted_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}}
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit", "aggregation", "source_system", "evidence_id", "entity", "channel", "domain", "filters", "segments"],
+      "properties": {
+        "value": {"type": "number"},
+        "unit": {"$ref": "#/$defs/machine_token"},
+        "aggregation": {"$ref": "#/$defs/machine_token"},
+        "source_system": {"enum": ["gsc", "ga4"]},
+        "evidence_id": {"$ref": "#/$defs/machine_token"},
+        "entity": {"$ref": "#/$defs/machine_token"},
+        "channel": {"$ref": "#/$defs/machine_token"},
+        "domain": {"allOf": [{"$ref": "#/$defs/dimension_map"}, {"minProperties": 1}]},
+        "filters": {"$ref": "#/$defs/dimension_map"},
+        "segments": {"$ref": "#/$defs/dimension_map"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"unit": {"const": "count"}}},
+          "then": {"properties": {"value": {"type": "integer", "minimum": 0}}}
+        },
+        {
+          "if": {"properties": {"unit": {"const": "percent"}}},
+          "then": {"properties": {"value": {"minimum": 0, "maximum": 100}}}
+        },
+        {
+          "if": {"properties": {"unit": {"const": "ratio"}}},
+          "then": {"properties": {"value": {"minimum": 0, "maximum": 1}}}
+        },
+        {
+          "if": {"properties": {"entity": {"const": "page"}}, "required": ["entity"]},
+          "then": {
+            "properties": {
+              "domain": {
+                "additionalProperties": false,
+                "required": ["entity", "value"],
+                "properties": {
+                  "entity": {"const": "page"},
+                  "value": {"$ref": "#/$defs/document_url"}
+                }
+              },
+              "filters": {
+                "additionalProperties": false,
+                "required": ["page"],
+                "properties": {
+                  "page": {"$ref": "#/$defs/document_url"},
+                  "search_type": {"$ref": "#/$defs/dimension_value"},
+                  "query": {"$ref": "#/$defs/dimension_value"},
+                  "country": {"$ref": "#/$defs/dimension_value"},
+                  "device": {"$ref": "#/$defs/dimension_value"},
+                  "device_category": {"$ref": "#/$defs/dimension_value"},
+                  "channel": {"$ref": "#/$defs/dimension_value"},
+                  "source": {"$ref": "#/$defs/dimension_value"},
+                  "medium": {"$ref": "#/$defs/dimension_value"},
+                  "campaign": {"$ref": "#/$defs/dimension_value"},
+                  "event_name": {"$ref": "#/$defs/dimension_value"},
+                  "content_group": {"$ref": "#/$defs/dimension_value"}
+                }
+              },
+              "segments": {
+                "additionalProperties": false,
+                "properties": {
+                  "search_type": {"$ref": "#/$defs/dimension_value"},
+                  "query": {"$ref": "#/$defs/dimension_value"},
+                  "country": {"$ref": "#/$defs/dimension_value"},
+                  "device": {"$ref": "#/$defs/dimension_value"},
+                  "device_category": {"$ref": "#/$defs/dimension_value"},
+                  "channel": {"$ref": "#/$defs/dimension_value"},
+                  "source": {"$ref": "#/$defs/dimension_value"},
+                  "medium": {"$ref": "#/$defs/dimension_value"},
+                  "campaign": {"$ref": "#/$defs/dimension_value"},
+                  "event_name": {"$ref": "#/$defs/dimension_value"},
+                  "content_group": {"$ref": "#/$defs/dimension_value"},
+                  "user_type": {"$ref": "#/$defs/dimension_value"}
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

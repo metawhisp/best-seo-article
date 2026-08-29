@@ -1,0 +1,270 @@
+{
+  "schema_version": "0.1",
+  "checked_at": "2026-08-29T00:00:00Z",
+  "generated_by": "capability_preflight.py",
+  "policy": {
+    "network_calls_made": false,
+    "secret_values_emitted": false,
+    "paid_use_requires_explicit_approval": true,
+    "unknown_cost_requires_explicit_approval": true
+  },
+  "capabilities": {
+    "serp": {
+      "status": "FALLBACK",
+      "selected_provider": "manual-serp-capture",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Use a dated manual browser snapshot; limit claims to the observed query, locale, device, and results, without implying exhaustive or repeatable rank tracking."
+    },
+    "keywords": {
+      "status": "FALLBACK",
+      "selected_provider": "first-party-semantic-research",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Build a semantic map from first-party inputs only; leave volume, CPC, and difficulty unavailable."
+    },
+    "gsc": {
+      "status": "UNAVAILABLE",
+      "selected_provider": null,
+      "selected_by": "none",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "NO_PROVIDER_OR_EXPORT",
+      "absence_effect": "No existing-query, cannibalization, or Google post-publish baseline; keep GSC measurement pending."
+    },
+    "ga4": {
+      "status": "UNAVAILABLE",
+      "selected_provider": null,
+      "selected_by": "none",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "NO_PROVIDER_OR_EXPORT",
+      "absence_effect": "Do not claim engagement or conversion lift; keep GA4 measurement pending."
+    },
+    "crawl": {
+      "status": "FALLBACK",
+      "selected_provider": "bounded-sitemap-http-review",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Limit conclusions to explicitly inspected URLs; do not claim full-site or orphan-page coverage."
+    },
+    "cwv": {
+      "status": "FALLBACK",
+      "selected_provider": "manual-performance-checklist",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Do not report Core Web Vitals; keep performance QA incomplete."
+    },
+    "fact_check": {
+      "status": "FALLBACK",
+      "selected_provider": "primary-source-claim-ledger",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Remove, qualify, or mark unsupported material claims; unresolved YMYL claims block editorial readiness."
+    },
+    "images": {
+      "status": "FALLBACK",
+      "selected_provider": "image-brief-and-owned-assets",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Return image briefs, dimensions, alt text, and provenance requirements; do not invent image files or URLs."
+    },
+    "charts": {
+      "status": "FALLBACK",
+      "selected_provider": "sourced-table-or-svg-spec",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Return a sourced table or chart specification only; do not chart missing data."
+    },
+    "cms": {
+      "status": "FALLBACK",
+      "selected_provider": "cms-neutral-publish-package",
+      "selected_by": "builtin-fallback",
+      "candidate": {
+        "provider": null,
+        "probe": {
+          "kind": "none",
+          "references": [],
+          "present": false,
+          "present_count": 0,
+          "required_count": 0
+        },
+        "cost": {
+          "kind": "none",
+          "approval_required": false,
+          "approved": false
+        }
+      },
+      "reason_code": "FREE_FALLBACK_SELECTED",
+      "absence_effect": "Create an agreed portable package or stop at content-ready; never claim CMS validation or publication."
+    }
+  },
+  "limitations": [
+    "serp [FALLBACK]: Use a dated manual browser snapshot; limit claims to the observed query, locale, device, and results, without implying exhaustive or repeatable rank tracking.",
+    "keywords [FALLBACK]: Build a semantic map from first-party inputs only; leave volume, CPC, and difficulty unavailable.",
+    "gsc [UNAVAILABLE]: No existing-query, cannibalization, or Google post-publish baseline; keep GSC measurement pending.",
+    "ga4 [UNAVAILABLE]: Do not claim engagement or conversion lift; keep GA4 measurement pending.",
+    "crawl [FALLBACK]: Limit conclusions to explicitly inspected URLs; do not claim full-site or orphan-page coverage.",
+    "cwv [FALLBACK]: Do not report Core Web Vitals; keep performance QA incomplete.",
+    "fact_check [FALLBACK]: Remove, qualify, or mark unsupported material claims; unresolved YMYL claims block editorial readiness.",
+    "images [FALLBACK]: Return image briefs, dimensions, alt text, and provenance requirements; do not invent image files or URLs.",
+    "charts [FALLBACK]: Return a sourced table or chart specification only; do not chart missing data.",
+    "cms [FALLBACK]: Create an agreed portable package or stop at content-ready; never claim CMS validation or publication."
+  ],
+  "summary": {
+    "counts": {
+      "AVAILABLE": 0,
+      "USER_EXPORT": 0,
+      "FALLBACK": 8,
+      "UNAVAILABLE": 2
+    },
+    "usable_capabilities": [
+      "serp",
+      "keywords",
+      "crawl",
+      "cwv",
+      "fact_check",
+      "images",
+      "charts",
+      "cms"
+    ],
+    "unavailable_capabilities": [
+      "gsc",
+      "ga4"
+    ],
+    "cost_approval_blocked_capabilities": [],
+    "all_capabilities_usable": false,
+    "degraded": true
+  }
+}

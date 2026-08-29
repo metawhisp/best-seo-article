@@ -1,0 +1,339 @@
+{
+  "schema_version": "0.1",
+  "run_id": "example-seo-article",
+  "commercial_use": true,
+  "policy": {
+    "visuals_optional": true,
+    "discover_mode": true,
+    "performance_budgets": {
+      "hero_max_bytes": 300000,
+      "inline_max_bytes": 200000,
+      "video_max_bytes": 5000000
+    }
+  },
+  "datasets": [
+    {
+      "dataset_id": "gsc-monthly-clicks",
+      "title": "Monthly organic clicks",
+      "publisher": "Example Company",
+      "source_url": "https://example.com/search-console-export",
+      "retrieved_at": "2026-08-29T09:00:00Z",
+      "snapshot_path": "data/gsc-monthly-clicks.csv",
+      "snapshot_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance_status": "verified",
+      "synthetic": false,
+      "methodology": "Search Console clicks grouped by calendar month for the canonical page.",
+      "time_range": "2025-08-01/2026-07-31",
+      "license": {
+        "status": "verified",
+        "license_id": "FIRST-PARTY-DATA",
+        "license_url": "https://example.com/data-use-policy",
+        "commercial_use_allowed": true,
+        "attribution_required": true,
+        "attribution_text": "Source: Example Company Search Console export"
+      },
+      "fields": [
+        {
+          "name": "month",
+          "data_type": "date",
+          "description": "Calendar month"
+        },
+        {
+          "name": "clicks",
+          "data_type": "integer",
+          "description": "Organic clicks recorded by Search Console",
+          "unit": "clicks"
+        }
+      ],
+      "transformations": [
+        {
+          "transform_id": "aggregate-monthly",
+          "description": "Aggregate daily rows by calendar month without interpolation.",
+          "spec_path": "data/transforms/aggregate-monthly.json",
+          "spec_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "input_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "output_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "hero-seo-workflow",
+      "type": "hero",
+      "purpose": "Represent the article's evidence-grounded SEO workflow in social and Discover previews.",
+      "claim_ids": [],
+      "evidence_use": false,
+      "source": {
+        "kind": "first_party",
+        "source_url": "https://example.com/brand-assets/seo-workflow",
+        "retrieved_at": "2026-08-29T09:15:00Z",
+        "creator": "Example Company Design"
+      },
+      "rights": {
+        "status": "verified",
+        "usage_basis": "owned",
+        "license_id": "FIRST-PARTY-ASSET",
+        "license_url": "https://example.com/media-policy",
+        "commercial_use_allowed": true,
+        "modification_allowed": true,
+        "attribution_required": false,
+        "attribution_text": "",
+        "editorial_only": false,
+        "depicts_recognizable_people": false,
+        "model_release_status": "not_applicable",
+        "depicts_protected_property": false,
+        "property_release_status": "not_applicable",
+        "manual_review_status": "not_required"
+      },
+      "accessibility": {
+        "decorative": false,
+        "alt": "Research, evidence, drafting, and verification connected in one SEO article workflow"
+      },
+      "performance": {
+        "above_fold": true,
+        "lcp_candidate": true,
+        "loading": "eager",
+        "fetchpriority": "high",
+        "responsive": true
+      },
+      "output": {
+        "path": "media/hero-seo-workflow.webp",
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "mime_type": "image/webp",
+        "bytes": 185000,
+        "width": 1280,
+        "height": 720,
+        "transformed": true,
+        "variants": [
+          {
+            "path": "media/hero-seo-workflow-640.webp",
+            "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "mime_type": "image/webp",
+            "width": 640,
+            "height": 360,
+            "bytes": 72000
+          }
+        ]
+      }
+    },
+    {
+      "asset_id": "screenshot-brief-state",
+      "type": "screenshot",
+      "purpose": "Show the exact reviewed brief state used by the procedural claim.",
+      "claim_ids": [
+        "C-PROCEDURE-01"
+      ],
+      "evidence_use": true,
+      "source": {
+        "kind": "screenshot",
+        "source_url": "https://app.example.com/articles/example-seo-article/brief",
+        "retrieved_at": "2026-08-29T09:30:00Z",
+        "creator": "Example Company product"
+      },
+      "rights": {
+        "status": "verified",
+        "usage_basis": "owned",
+        "license_id": "FIRST-PARTY-SCREENSHOT",
+        "license_url": "https://example.com/media-policy",
+        "commercial_use_allowed": true,
+        "modification_allowed": true,
+        "attribution_required": false,
+        "attribution_text": "",
+        "editorial_only": false,
+        "depicts_recognizable_people": false,
+        "model_release_status": "not_applicable",
+        "depicts_protected_property": false,
+        "property_release_status": "not_applicable",
+        "manual_review_status": "approved",
+        "manual_review": {
+          "reviewer": "Example Company privacy and rights reviewer",
+          "reviewed_at": "2026-08-29T09:40:00Z",
+          "evidence": "Reviewer confirmed that the screenshot is first-party, redacted, and cleared for publication.",
+          "scopes": [
+            "general_rights"
+          ]
+        }
+      },
+      "accessibility": {
+        "decorative": false,
+        "alt": "Approved content brief with search intent, evidence sources, and claim IDs"
+      },
+      "performance": {
+        "above_fold": false,
+        "lcp_candidate": false,
+        "loading": "lazy",
+        "fetchpriority": "auto",
+        "responsive": true
+      },
+      "output": {
+        "path": "media/brief-state-redacted.webp",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "mime_type": "image/webp",
+        "bytes": 118000,
+        "width": 1200,
+        "height": 750,
+        "transformed": true,
+        "variants": []
+      },
+      "screenshot": {
+        "captured_at": "2026-08-29T09:30:00Z",
+        "viewport_width": 1440,
+        "viewport_height": 900,
+        "locale": "en-US",
+        "authenticated": true,
+        "pii_review_status": "approved",
+        "redactions": [
+          "Removed workspace member email from the top navigation"
+        ],
+        "original_path": "evidence/screenshots/brief-state-original.png",
+        "original_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    },
+    {
+      "asset_id": "chart-monthly-clicks",
+      "type": "chart",
+      "purpose": "Show the sourced twelve-month click trend without hiding exact values.",
+      "claim_ids": [
+        "C-DATA-17"
+      ],
+      "evidence_use": true,
+      "source": {
+        "kind": "derived_from_dataset",
+        "source_url": "https://example.com/search-console-export",
+        "retrieved_at": "2026-08-29T09:00:00Z",
+        "creator": "Example Company Analytics"
+      },
+      "rights": {
+        "status": "verified",
+        "usage_basis": "owned",
+        "license_id": "FIRST-PARTY-DATA-VISUAL",
+        "license_url": "https://example.com/data-use-policy",
+        "commercial_use_allowed": true,
+        "modification_allowed": true,
+        "attribution_required": true,
+        "attribution_text": "Source: Example Company Search Console export",
+        "editorial_only": false,
+        "depicts_recognizable_people": false,
+        "model_release_status": "not_applicable",
+        "depicts_protected_property": false,
+        "property_release_status": "not_applicable",
+        "manual_review_status": "not_required"
+      },
+      "accessibility": {
+        "decorative": false,
+        "alt": "Line chart of monthly organic clicks from August 2025 through July 2026",
+        "long_description_path": "descriptions/chart-monthly-clicks.md",
+        "long_description_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "data_table_path": "tables/chart-monthly-clicks.html",
+        "data_table_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "color_not_sole_cue": true,
+        "contrast_review_status": "approved"
+      },
+      "performance": {
+        "above_fold": false,
+        "lcp_candidate": false,
+        "loading": "lazy",
+        "fetchpriority": "auto",
+        "responsive": true
+      },
+      "output": {
+        "path": "media/chart-monthly-clicks.webp",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "mime_type": "image/webp",
+        "bytes": 42000,
+        "width": 1200,
+        "height": 675,
+        "transformed": true,
+        "variants": []
+      },
+      "chart_data": {
+        "dataset_id": "gsc-monthly-clicks",
+        "field_names": [
+          "month",
+          "clicks"
+        ],
+        "transform_id": "aggregate-monthly",
+        "transform_output_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "spec_path": "data/transforms/aggregate-monthly.json",
+        "spec_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "units": "clicks",
+        "synthetic": false,
+        "disclosure": ""
+      }
+    },
+    {
+      "asset_id": "diagram-conceptual-review-loop",
+      "type": "diagram",
+      "purpose": "Illustrate a conceptual review loop without asserting that the depicted interface exists.",
+      "claim_ids": [],
+      "evidence_use": false,
+      "source": {
+        "kind": "ai_generated",
+        "source_url": "https://openai.com/policies/terms-of-use/",
+        "retrieved_at": "2026-08-29T10:00:00Z",
+        "creator": "Example Company with OpenAI"
+      },
+      "rights": {
+        "status": "verified",
+        "usage_basis": "owned",
+        "license_id": "OPENAI-OUTPUT-TERMS-CHECKED-2026-08-29",
+        "license_url": "https://openai.com/policies/terms-of-use/",
+        "commercial_use_allowed": true,
+        "modification_allowed": true,
+        "attribution_required": false,
+        "attribution_text": "",
+        "editorial_only": false,
+        "depicts_recognizable_people": false,
+        "model_release_status": "not_applicable",
+        "depicts_protected_property": false,
+        "property_release_status": "not_applicable",
+        "manual_review_status": "approved",
+        "manual_review": {
+          "reviewer": "Example Company AI media rights reviewer",
+          "reviewed_at": "2026-08-29T10:05:00Z",
+          "evidence": "Reviewer confirmed that generation used no reference assets and that provider terms were checked for this use.",
+          "scopes": [
+            "general_rights",
+            "ai_input_rights"
+          ]
+        }
+      },
+      "accessibility": {
+        "decorative": false,
+        "alt": "Conceptual loop from draft to evidence review, revision, and approval",
+        "long_description_path": "descriptions/diagram-conceptual-review-loop.md",
+        "long_description_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+        "color_not_sole_cue": true,
+        "contrast_review_status": "approved"
+      },
+      "performance": {
+        "above_fold": false,
+        "lcp_candidate": false,
+        "loading": "lazy",
+        "fetchpriority": "auto",
+        "responsive": true
+      },
+      "output": {
+        "path": "media/diagram-conceptual-review-loop.webp",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "mime_type": "image/webp",
+        "bytes": 98000,
+        "width": 1200,
+        "height": 675,
+        "transformed": true,
+        "variants": []
+      },
+      "ai": {
+        "generated": true,
+        "provider": "OpenAI",
+        "model": "approved-image-model",
+        "generated_at": "2026-08-29T10:00:00Z",
+        "prompt_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "input_assets": [],
+        "provenance_metadata_retained": true,
+        "disclosure": "Conceptual illustration generated with AI; not a product screenshot or factual record."
+      }
+    }
+  ]
+}

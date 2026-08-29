@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:best-seo-article:schema:review-binding-v1",
+  "title": "Best SEO Article bound review",
+  "$comment": "Schema and asset not-applicable outcomes are cross-checked at runtime against publish/schema.json and detected media work by scripts/validate_run.py; a standalone review document cannot establish that external context.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "contract_version",
+    "run_id",
+    "review_type",
+    "status",
+    "artifact_hashes",
+    "findings"
+  ],
+  "properties": {
+    "contract_version": {"const": "review-binding-v1"},
+    "run_id": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9]", "not": {"pattern": "[^A-Za-z0-9._-]"}},
+    "review_type": {"enum": ["verification", "editorial", "ymyl", "technical"]},
+    "status": {"enum": ["passed", "approved", "pending", "needs-changes", "rejected"]},
+    "reviewer": {"$ref": "#/$defs/actor_identity"},
+    "reviewed_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "requested_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "review_required": {"type": "boolean"},
+    "credentials": {"allOf": [{"$ref": "#/$defs/substantive_text"}, {"minLength": 8}]},
+    "scope": {"allOf": [{"$ref": "#/$defs/substantive_text"}, {"minLength": 12}]},
+    "destination_scope": {"$ref": "#/$defs/substantive_text"},
+    "jurisdiction": {"allOf": [{"$ref": "#/$defs/substantive_text"}, {"minLength": 2}]},
+    "independence_degraded": {"type": "boolean"},
+    "sections_reviewed": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"allOf": [{"$ref": "#/$defs/substantive_text"}, {"minLength": 3}]}
+    },
+    "claims_requiring_review": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}}
+    },
+    "claims_reviewed": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}}
+    },
+    "checks": {
+      "oneOf": [
+        {
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "single_h1": {"$ref": "#/$defs/required_technical_outcome"},
+            "single_logical_h1": {"$ref": "#/$defs/required_technical_outcome"},
+            "metadata": {"$ref": "#/$defs/required_technical_outcome"},
+            "links": {"$ref": "#/$defs/required_technical_outcome"},
+            "local_links_and_assets": {"$ref": "#/$defs/required_technical_outcome"}
+          },
+          "additionalProperties": {"$ref": "#/$defs/technical_outcome"}
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/technical_check"}
+        }
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["severity", "message", "resolution"],
+        "properties": {
+          "severity": {"enum": ["P0", "P1", "P2", "P3"]},
+          "message": {"$ref": "#/$defs/substantive_text"},
+          "resolution": {"enum": ["open", "resolved"]}
+        }
+      }
+    },
+    "artifact_hashes": {
+      "type": "object",
+      "minProperties": 4,
+      "maxProperties": 5,
+      "propertyNames": {
+        "enum": [
+          "drafts/final.md",
+          "intake.json",
+          "claims.jsonl",
+          "research/sources.jsonl",
+          "publish/publish-manifest.json"
+        ]
+      },
+      "additionalProperties": {"$ref": "#/$defs/sha256"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"review_type": {"enum": ["verification", "editorial"]}}},
+      "then": {
+        "properties": {
+          "status": {"const": "passed"},
+          "artifact_hashes": {
+            "minProperties": 4,
+            "maxProperties": 4,
+            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl"]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"review_type": {"const": "verification"}}, "required": ["review_type"]},
+      "then": {"required": ["independence_degraded"]}
+    },
+    {
+      "if": {"properties": {"review_type": {"const": "technical"}}},
+      "then": {
+        "required": ["checks"],
+        "anyOf": [
+          {"required": ["scope"]},
+          {"required": ["destination_scope"]}
+        ],
+        "properties": {
+          "status": {"const": "passed"},
+          "checks": {
+            "oneOf": [
+              {
+                "type": "object",
+                "allOf": [
+                  {"anyOf": [{"required": ["single_h1"]}, {"required": ["single_logical_h1"]}]},
+                  {"required": ["metadata"]},
+                  {"anyOf": [{"required": ["schema"]}, {"required": ["schema_decision"]}, {"required": ["structured_data_decision"]}]},
+                  {"anyOf": [{"required": ["links"]}, {"required": ["local_links_and_assets"]}]},
+                  {"anyOf": [{"required": ["assets"]}, {"required": ["media_policy"]}, {"required": ["local_links_and_assets"]}]}
+                ]
+              },
+              {
+                "type": "array",
+                "allOf": [
+                  {"contains": {"type": "object", "required": ["check", "status"], "properties": {"check": {"enum": ["single_h1", "single_logical_h1"]}, "status": {"const": "passed"}}}},
+                  {"contains": {"type": "object", "required": ["check", "status"], "properties": {"check": {"const": "metadata"}, "status": {"const": "passed"}}}},
+                  {"contains": {"type": "object", "required": ["check", "status"], "properties": {"check": {"enum": ["schema", "schema_decision", "structured_data_decision"]}, "status": {"enum": ["passed", "not-applicable"]}}}},
+                  {"contains": {"type": "object", "required": ["check", "status"], "properties": {"check": {"enum": ["links", "local_links_and_assets"]}, "status": {"const": "passed"}}}},
+                  {"contains": {"type": "object", "required": ["check", "status"], "properties": {"check": {"enum": ["assets", "media_policy", "local_links_and_assets"]}, "status": {"enum": ["passed", "not-applicable"]}}}}
+                ]
+              }
+            ]
+          },
+          "artifact_hashes": {
+            "minProperties": 5,
+            "maxProperties": 5,
+            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl", "publish/publish-manifest.json"]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"review_type": {"const": "ymyl"}}},
+      "then": {
+        "properties": {
+          "status": {"enum": ["approved", "pending", "needs-changes", "rejected"]},
+          "artifact_hashes": {
+            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review_type": {"const": "ymyl"},
+          "status": {"const": "approved"}
+        },
+        "required": ["review_type", "status"]
+      },
+      "then": {
+        "required": [
+          "review_required",
+          "reviewer",
+          "reviewed_at",
+          "credentials",
+          "scope",
+          "jurisdiction",
+          "sections_reviewed",
+          "claims_reviewed"
+        ],
+        "properties": {
+          "review_required": {"const": true},
+          "reviewer": {"allOf": [{"$ref": "#/$defs/actor_identity"}, {"minLength": 3}]}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review_type": {"const": "ymyl"},
+          "status": {"enum": ["pending", "needs-changes", "rejected"]}
+        },
+        "required": ["review_type", "status"]
+      },
+      "then": {
+        "required": [
+          "review_required",
+          "requested_at",
+          "scope",
+          "jurisdiction",
+          "claims_requiring_review"
+        ],
+        "properties": {"review_required": {"const": true}}
+      }
+    },
+    {
+      "if": {"properties": {"status": {"enum": ["passed", "approved"]}}},
+      "then": {
+        "required": ["reviewer", "reviewed_at"],
+        "not": {
+          "properties": {
+            "findings": {
+              "contains": {
+                "type": "object",
+                "required": ["severity", "resolution"],
+                "properties": {
+                  "severity": {"enum": ["P0", "P1"]},
+                  "resolution": {"const": "open"}
+                }
+              }
+            }
+          }
+        }
+      },
+      "else": {"required": ["requested_at"]}
+    }
+  ],
+  "$defs": {
+    "substantive_text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "x-unicode-letter-or-number": true,
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFFB]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-runtime-default-ignorable-ranges": ["1BCA0-1BCA3", "1D173-1D17A", "E0000-E0FFF"]
+    },
+    "actor_identity": {
+      "allOf": [
+        {"$ref": "#/$defs/substantive_text"}
+      ]
+    },
+    "technical_outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["passed", "not-applicable"]},
+        "evidence": {"$ref": "#/$defs/observation_evidence"}
+      }
+    },
+    "required_technical_outcome": {
+      "allOf": [
+        {"$ref": "#/$defs/technical_outcome"},
+        {"properties": {"status": {"const": "passed"}}}
+      ]
+    },
+    "technical_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "status", "evidence"],
+      "properties": {
+        "check": {"$ref": "#/$defs/substantive_text"},
+        "status": {"enum": ["passed", "not-applicable"]},
+        "evidence": {"$ref": "#/$defs/observation_evidence"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "check": {"enum": ["single_h1", "single_logical_h1", "metadata", "links", "local_links_and_assets"]}
+            },
+            "required": ["check"]
+          },
+          "then": {"properties": {"status": {"const": "passed"}}}
+        }
+      ]
+    },
+    "observation_evidence": {
+      "allOf": [
+        {"$ref": "#/$defs/substantive_text"},
+        {"minLength": 12},
+        {
+          "not": {
+            "anyOf": [
+              {"pattern": "(?:[Ww][Aa][Ss]|[Ii][Ss]|[Ww][Ee][Rr][Ee]|[Aa][Rr][Ee])[ \\t]+[Nn][Oo][Tt][ \\t]+(?:[Cc][Hh][Ee][Cc][Kk][Ee][Dd]|[Vv][Ee][Rr][Ii][Ff][Ii][Ee][Dd]|[Oo][Bb][Ss][Ee][Rr][Vv][Ee][Dd]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt][Ee][Dd]|[Tt][Ee][Ss][Tt][Ee][Dd])"},
+              {"pattern": "(?:[Cc][Oo][Uu][Ll][Dd][ \\t]+[Nn][Oo][Tt]|[Uu][Nn][Aa][Bb][Ll][Ee][ \\t]+[Tt][Oo])[ \\t]+(?:[Cc][Hh][Ee][Cc][Kk]|[Vv][Ee][Rr][Ii][Ff][Yy]|[Oo][Bb][Ss][Ee][Rr][Vv][Ee]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt]|[Tt][Ee][Ss][Tt])"},
+              {"pattern": "(?:[Ee][Vv][Ii][Dd][Ee][Nn][Cc][Ee]|[Oo][Bb][Ss][Ee][Rr][Vv][Aa][Tt][Ii][Oo][Nn]|[Vv][Ee][Rr][Ii][Ff][Ii][Cc][Aa][Tt][Ii][Oo][Nn]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt][Ii][Oo][Nn]|[Tt][Ee][Ss][Tt][Ii][Nn][Gg]?)[ \\t]+(?:[Ii][Ss]|[Ww][Aa][Ss])[ \\t]+[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"},
+              {"pattern": "[Nn][Oo][ \\t]+(?:[Oo][Bb][Ss][Ee][Rr][Vv][Aa][Tt][Ii][Oo][Nn]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt][Ii][Oo][Nn]|[Vv][Ee][Rr][Ii][Ff][Ii][Cc][Aa][Tt][Ii][Oo][Nn]|[Tt][Ee][Ss][Tt]|[Cc][Hh][Ee][Cc][Kk])[ \\t]+(?:[Ww][Aa][Ss]|[Ii][Ss])[ \\t]+(?:[Mm][Aa][Dd][Ee]|[Pp][Ee][Rr][Ff][Oo][Rr][Mm][Ee][Dd]|[Rr][Ee][Cc][Oo][Rr][Dd][Ee][Dd])"}
+            ]
+          }
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "not": {"pattern": "[\\u0000-\\u001F\\u007F]"},
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "schema_version": "0.1",
+  "run_id": "unsafe-example",
+  "commercial_use": true,
+  "policy": {
+    "visuals_optional": false,
+    "discover_mode": true,
+    "performance_budgets": {
+      "hero_max_bytes": 100000,
+      "inline_max_bytes": 50000,
+      "video_max_bytes": 1000000
+    }
+  },
+  "datasets": [
+    {
+      "dataset_id": "illustrative-growth",
+      "title": "Illustrative growth",
+      "publisher": "Unknown",
+      "source_url": "https://example.com/unverified-data",
+      "retrieved_at": "2026-08-29T09:00:00Z",
+      "snapshot_path": "data/illustrative-growth.csv",
+      "snapshot_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provenance_status": "pending",
+      "synthetic": true,
+      "methodology": "Values were invented for a visual example.",
+      "license": {
+        "status": "unknown",
+        "license_id": "UNKNOWN",
+        "license_url": "https://example.com/unknown-license",
+        "commercial_use_allowed": false,
+        "attribution_required": true,
+        "attribution_text": ""
+      },
+      "fields": [
+        {
+          "name": "month",
+          "data_type": "date",
+          "description": "Month"
+        },
+        {
+          "name": "growth",
+          "data_type": "number",
+          "description": "Invented growth",
+          "unit": "percent"
+        }
+      ],
+      "transformations": [
+        {
+          "transform_id": "inflate-growth",
+          "description": "Increase values without a documented basis.",
+          "spec_path": "data/transforms/inflate-growth.json",
+          "spec_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "input_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "output_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "fake-ai-hero",
+      "type": "hero",
+      "purpose": "Present a generated dashboard as proof of growth.",
+      "claim_ids": [],
+      "evidence_use": true,
+      "source": {
+        "kind": "ai_generated",
+        "source_url": "https://example.com/generator",
+        "retrieved_at": "2026-08-29T10:00:00Z",
+        "creator": "Unknown generator"
+      },
+      "rights": {
+        "status": "pending",
+        "usage_basis": "licensed",
+        "license_id": "UNVERIFIED-AI-TERMS",
+        "license_url": "https://example.com/generator/terms",
+        "commercial_use_allowed": false,
+        "modification_allowed": false,
+        "attribution_required": true,
+        "attribution_text": "",
+        "editorial_only": true,
+        "depicts_recognizable_people": true,
+        "model_release_status": "missing",
+        "depicts_protected_property": true,
+        "property_release_status": "unknown",
+        "manual_review_status": "pending"
+      },
+      "accessibility": {
+        "decorative": true,
+        "alt": "best SEO growth chart ranking traffic keywords"
+      },
+      "performance": {
+        "above_fold": false,
+        "lcp_candidate": true,
+        "loading": "lazy",
+        "fetchpriority": "low",
+        "responsive": false
+      },
+      "output": {
+        "path": "media/fake-ai-hero.png",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "mime_type": "image/png",
+        "bytes": 900000,
+        "width": 800,
+        "height": 200,
+        "transformed": true,
+        "variants": []
+      },
+      "ai": {
+        "generated": true,
+        "provider": "Unknown",
+        "model": "Unknown",
+        "generated_at": "2026-08-29T10:00:00Z",
+        "prompt_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "input_assets": [
+          {
+            "input_id": "unknown-reference",
+            "kind": "reference_image",
+            "creator": "Unknown source",
+            "retrieved_at": "2026-08-29T09:00:00Z",
+            "sha256": "abababababababababababababababababababababababababababababababab",
+            "source_url": "https://example.invalid/unknown-reference",
+            "rights_status": "unknown",
+            "usage_basis": "owned",
+            "commercial_use_allowed": false,
+            "modification_allowed": false
+          }
+        ],
+        "provenance_metadata_retained": false,
+        "disclosure": ""
+      }
+    },
+    {
+      "asset_id": "unreviewed-account-screenshot",
+      "type": "screenshot",
+      "purpose": "Show an authenticated account containing customer data.",
+      "claim_ids": [
+        "C-UI-01"
+      ],
+      "evidence_use": true,
+      "source": {
+        "kind": "first_party",
+        "source_url": "https://app.example.com/private/account",
+        "retrieved_at": "2026-08-29T10:15:00Z",
+        "creator": "Example Company product"
+      },
+      "rights": {
+        "status": "verified",
+        "usage_basis": "owned",
+        "license_id": "FIRST-PARTY-SCREENSHOT",
+        "license_url": "https://example.com/media-policy",
+        "commercial_use_allowed": true,
+        "modification_allowed": true,
+        "attribution_required": false,
+        "attribution_text": "",
+        "editorial_only": false,
+        "depicts_recognizable_people": false,
+        "model_release_status": "not_applicable",
+        "depicts_protected_property": false,
+        "property_release_status": "not_applicable",
+        "manual_review_status": "pending"
+      },
+      "accessibility": {
+        "decorative": false,
+        "alt": ""
+      },
+      "performance": {
+        "above_fold": true,
+        "lcp_candidate": true,
+        "loading": "eager",
+        "fetchpriority": "high",
+        "responsive": true
+      },
+      "output": {
+        "path": "media/private-account.png",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "mime_type": "image/png",
+        "bytes": 120000,
+        "width": 1200,
+        "height": 800,
+        "transformed": false,
+        "variants": []
+      },
+      "screenshot": {
+        "captured_at": "2026-08-29T10:15:00Z",
+        "viewport_width": 1440,
+        "viewport_height": 900,
+        "locale": "en-US",
+        "authenticated": true,
+        "pii_review_status": "pending",
+        "redactions": [],
+        "original_path": "evidence/screenshots/private-account.png",
+        "original_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    },
+    {
+      "asset_id": "unsupported-synthetic-chart",
+      "type": "chart",
+      "purpose": "Use illustrative numbers as a factual performance claim.",
+      "claim_ids": [
+        "C-DATA-99"
+      ],
+      "evidence_use": true,
+      "source": {
+        "kind": "derived_from_dataset",
+        "source_url": "https://example.com/unverified-data",
+        "retrieved_at": "2026-08-29T09:00:00Z",
+        "creator": "Unknown"
+      },
+      "rights": {
+        "status": "verified",
+        "usage_basis": "licensed",
+        "license_id": "EXAMPLE-LICENSE",
+        "license_url": "https://example.com/license",
+        "commercial_use_allowed": true,
+        "modification_allowed": true,
+        "attribution_required": false,
+        "attribution_text": "",
+        "editorial_only": false,
+        "depicts_recognizable_people": false,
+        "model_release_status": "not_applicable",
+        "depicts_protected_property": false,
+        "property_release_status": "not_applicable",
+        "manual_review_status": "not_required"
+      },
+      "accessibility": {
+        "decorative": false,
+        "alt": "Synthetic growth chart",
+        "color_not_sole_cue": false,
+        "contrast_review_status": "pending"
+      },
+      "performance": {
+        "above_fold": false,
+        "lcp_candidate": false,
+        "loading": "lazy",
+        "fetchpriority": "auto",
+        "responsive": true
+      },
+      "output": {
+        "path": "media/unsupported-synthetic-chart.svg",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "mime_type": "image/svg+xml",
+        "bytes": 80000,
+        "width": 1200,
+        "height": 675,
+        "transformed": true,
+        "variants": []
+      },
+      "chart_data": {
+        "dataset_id": "does-not-exist",
+        "field_names": [
+          "month",
+          "growth"
+        ],
+        "transform_id": "missing-transform",
+        "transform_output_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "spec_path": "data/transforms/unsupported-chart.json",
+        "spec_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "units": "percent",
+        "synthetic": true,
+        "disclosure": ""
+      }
+    }
+  ]
+}

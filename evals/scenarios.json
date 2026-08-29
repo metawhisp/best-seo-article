@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1",
+  "purpose": "Independent forward-test prompts. Evaluators receive the skill and raw inputs, not an intended answer.",
+  "scenarios": [
+    {
+      "id": "new-google-ai-content",
+      "mode": "new",
+      "prompt": "Create a publishable article for marketing teams explaining how to use generative AI for SEO content without violating current Google guidance. Use current official sources and do not invent ranking effects.",
+      "expected_invariants": ["current SERP/source snapshot", "official Google evidence", "no ranking guarantee", "independent claim review"]
+    },
+    {
+      "id": "rewrite-meta-description",
+      "mode": "rewrite",
+      "prompt": "Rewrite the supplied weak article about meta-description length. Preserve its approved URL and useful official link, correct any unsupported hard character limit, and provide a traceable diff.",
+      "expected_invariants": ["baseline retained", "protected link retained", "no universal character limit", "diff report"]
+    },
+    {
+      "id": "refresh-faq-rich-results",
+      "mode": "refresh",
+      "prompt": "Refresh the supplied article that recommends FAQ schema for every blog post. Use current Google documentation, change only stale sections, and justify dateModified.",
+      "expected_invariants": ["baseline retained", "current official source", "stale FAQ recommendation removed", "material date change"]
+    }
+  ]
+}
+

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/best-seo-article/source.schema.json",
+  "title": "Evidence source record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["source_id", "title", "locator", "publisher", "source_type", "acquisition", "retrieved_at", "access_status", "supported_claim_ids"],
+  "properties": {
+    "source_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "title": {"$ref": "#/$defs/substantive_text"},
+    "locator": {"$ref": "#/$defs/substantive_text"},
+    "publisher": {"$ref": "#/$defs/substantive_text"},
+    "author": {"oneOf": [{"$ref": "#/$defs/substantive_text"}, {"type": "null"}]},
+    "published_at": {"type": ["string", "null"]},
+    "updated_at": {"type": ["string", "null"]},
+    "retrieved_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "source_type": {
+      "enum": ["official", "primary", "first-party", "user-provided", "secondary", "competitor"]
+    },
+    "acquisition": {
+      "enum": ["agent-web", "user-provided"]
+    },
+    "locale": {"type": ["string", "null"]},
+    "jurisdiction": {"type": ["string", "null"]},
+    "access_status": {"enum": ["accessible", "partial", "archived", "unavailable"]},
+    "supported_claim_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+      "uniqueItems": true
+    },
+    "known_conflicts": {"type": "array", "items": {"$ref": "#/$defs/substantive_text"}},
+    "snapshot": {"type": ["string", "null"]},
+    "notes": {"oneOf": [{"$ref": "#/$defs/substantive_text"}, {"type": "null"}]}
+  },
+  "$defs": {
+    "substantive_text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-unicode-substantive": true,
+      "x-unicode-letter-or-number": true,
+      "x-runtime-default-ignorable-ranges": ["1BCA0-1BCA3", "1D173-1D17A", "E0000-E0FFF"]
+    }
+  },
+  "$comment": "x-unicode-letter-or-number is enforced by scripts/validate_claims.py; pattern rejects portable whitespace-only values, while runtime validation also rejects format/control-only and punctuation/symbol-only evidence. Cross-record claim/source reciprocity is a runtime JSONL graph constraint."
+}

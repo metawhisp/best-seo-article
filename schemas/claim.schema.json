@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/best-seo-article/claim.schema.json",
+  "title": "Article claim record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "claim_id",
+    "text",
+    "location",
+    "classification",
+    "claim_type",
+    "source_ids",
+    "support_status",
+    "freshness_status",
+    "resolution"
+  ],
+  "properties": {
+    "claim_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "text": {"$ref": "#/$defs/substantive_text"},
+    "location": {"$ref": "#/$defs/substantive_text"},
+    "classification": {"enum": ["load-bearing", "supporting", "opinion", "inference"]},
+    "claim_type": {"enum": ["factual", "numeric", "quote", "experience", "opinion", "inference"]},
+    "source_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+      "uniqueItems": true
+    },
+    "support_status": {"enum": ["verified", "qualified", "partial", "contradicted", "unsupported", "pending", "not-applicable"]},
+    "freshness_status": {"enum": ["current", "stale", "unknown", "not-applicable"]},
+    "exact_support": {"oneOf": [{"$ref": "#/$defs/substantive_text"}, {"type": "null"}]},
+    "verifier": {
+      "oneOf": [
+        {"$ref": "#/$defs/actor_identity"},
+        {"type": "null"}
+      ]
+    },
+    "resolution": {"$ref": "#/$defs/substantive_text"},
+    "as_of": {"type": ["string", "null"], "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"classification": {"enum": ["load-bearing", "supporting"]}}},
+      "then": {
+        "required": ["exact_support", "verifier"],
+        "properties": {
+          "source_ids": {"minItems": 1},
+          "exact_support": {"$ref": "#/$defs/substantive_text"},
+          "verifier": {"$ref": "#/$defs/actor_identity"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"claim_type": {"enum": ["factual", "numeric", "quote", "experience"]}}, "required": ["claim_type"]},
+      "then": {"properties": {"classification": {"enum": ["load-bearing", "supporting"]}}}
+    },
+    {
+      "if": {"properties": {"claim_type": {"const": "opinion"}}, "required": ["claim_type"]},
+      "then": {"properties": {"classification": {"const": "opinion"}}}
+    },
+    {
+      "if": {"properties": {"claim_type": {"const": "inference"}}, "required": ["claim_type"]},
+      "then": {"properties": {"classification": {"const": "inference"}}}
+    }
+  ],
+  "$defs": {
+    "substantive_text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-unicode-substantive": true,
+      "x-unicode-letter-or-number": true,
+      "x-runtime-default-ignorable-ranges": ["1BCA0-1BCA3", "1D173-1D17A", "E0000-E0FFF"]
+    },
+    "actor_identity": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-unicode-substantive": true,
+      "x-unicode-letter-or-number": true,
+      "x-runtime-default-ignorable-ranges": ["1BCA0-1BCA3", "1D173-1D17A", "E0000-E0FFF"]
+    }
+  },
+  "$comment": "x-unicode-letter-or-number is enforced by scripts/validate_claims.py; pattern rejects portable whitespace-only values, while runtime validation also rejects format/control-only and punctuation/symbol-only evidence. Cross-record claim/source reciprocity is a runtime JSONL graph constraint."
+}

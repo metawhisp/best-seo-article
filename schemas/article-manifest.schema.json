@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/best-seo-article/article-manifest.schema.json",
+  "title": "Best SEO Article run manifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "run_id",
+    "mode",
+    "target",
+    "language",
+    "risk",
+    "roles",
+    "protected",
+    "permissions",
+    "requested_status",
+    "actual_status",
+    "destination",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "run_id": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9]", "not": {"pattern": "[^A-Za-z0-9._-]"}},
+    "mode": {"enum": ["new", "rewrite", "refresh", "external"]},
+    "target": {"$ref": "#/$defs/substantiveText"},
+    "language": {"allOf": [{"$ref": "#/$defs/substantiveText"}, {"minLength": 2}]},
+    "locale": {"type": ["string", "null"]},
+    "site": {
+      "oneOf": [
+        {"$ref": "#/$defs/httpUrl"},
+        {"type": "null"}
+      ]
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ymyl", "jurisdiction"],
+      "properties": {
+        "ymyl": {"enum": ["auto", true, false]},
+        "jurisdiction": {"type": ["string", "null"]}
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["web_research", "paid_tools", "cms_draft", "publish", "url_change"],
+      "properties": {
+        "web_research": {"type": "boolean"},
+        "paid_tools": {"type": "boolean"},
+        "cms_draft": {"type": "boolean"},
+        "publish": {"type": "boolean"},
+        "url_change": {"type": "boolean"}
+      }
+    },
+    "requested_status": {"$ref": "#/$defs/status"},
+    "actual_status": {"$ref": "#/$defs/status"},
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writer", "verifier", "editor", "technical_reviewer", "expert_reviewer"],
+      "properties": {
+        "writer": {"$ref": "#/$defs/nullableActor"},
+        "verifier": {"$ref": "#/$defs/nullableActor"},
+        "editor": {"$ref": "#/$defs/nullableActor"},
+        "technical_reviewer": {"$ref": "#/$defs/nullableActor"},
+        "expert_reviewer": {"$ref": "#/$defs/nullableActor"}
+      }
+    },
+    "protected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewed", "rationale", "empty_selection_approved", "headings", "links"],
+      "properties": {
+        "reviewed": {"type": "boolean"},
+        "rationale": {"oneOf": [{"$ref": "#/$defs/substantiveText"}, {"type": "null"}]},
+        "empty_selection_approved": {"type": "boolean"},
+        "headings": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/substantiveText"}},
+        "links": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/substantiveText"}}
+      }
+    },
+    "destination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "url", "cms"],
+      "properties": {
+        "format": {"enum": ["markdown", "mdx", "html"]},
+        "url": {
+          "oneOf": [
+            {"$ref": "#/$defs/httpUrl"},
+            {"type": "null"}
+          ]
+        },
+        "cms": {
+          "oneOf": [
+            {"type": "string", "minLength": 1, "pattern": "\\S", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "created_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "updated_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+    "warnings": {"type": "array"},
+    "waivers": {"type": "array"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"risk": {"type": "object", "properties": {"ymyl": {"const": true}}, "required": ["ymyl"]}}, "required": ["risk"]},
+      "then": {"properties": {"risk": {"required": ["jurisdiction"], "properties": {"jurisdiction": {"allOf": [{"$ref": "#/$defs/substantiveText"}, {"minLength": 2}]}}}}}
+    },
+    {
+      "if": {"properties": {"actual_status": {"const": "needs-expert-review"}}, "required": ["actual_status"]},
+      "then": {"properties": {"risk": {"properties": {"ymyl": {"const": true}}, "required": ["ymyl"]}}}
+    },
+    {
+      "if": {"properties": {"actual_status": {"enum": ["content-ready", "publish-package-ready", "published-pending-verification", "verified-live", "measured"]}}, "required": ["actual_status"]},
+      "then": {"properties": {"risk": {"properties": {"ymyl": {"enum": [true, false]}}, "required": ["ymyl"]}}}
+    },
+    {
+      "if": {"properties": {"actual_status": {"enum": ["needs-expert-review", "content-ready", "publish-package-ready", "published-pending-verification", "verified-live", "measured"]}}, "required": ["actual_status"]},
+      "then": {
+        "required": ["roles"],
+        "properties": {
+          "roles": {
+            "required": ["writer", "verifier", "editor"],
+            "properties": {
+              "writer": {"$ref": "#/$defs/actorIdentity"},
+              "verifier": {"$ref": "#/$defs/actorIdentity"},
+              "editor": {"$ref": "#/$defs/actorIdentity"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"actual_status": {"enum": ["publish-package-ready", "published-pending-verification", "verified-live", "measured"]}}, "required": ["actual_status"]},
+      "then": {"properties": {"roles": {"required": ["technical_reviewer"], "properties": {"technical_reviewer": {"$ref": "#/$defs/actorIdentity"}}}}}
+    },
+    {
+      "if": {
+        "properties": {
+          "actual_status": {"enum": ["content-ready", "publish-package-ready", "published-pending-verification", "verified-live", "measured"]},
+          "risk": {"type": "object", "properties": {"ymyl": {"const": true}}, "required": ["ymyl"]}
+        },
+        "required": ["actual_status", "risk"]
+      },
+      "then": {"properties": {"roles": {"required": ["expert_reviewer"], "properties": {"expert_reviewer": {"$ref": "#/$defs/actorIdentity"}}}}}
+    },
+    {
+      "if": {"properties": {"actual_status": {"enum": ["published-pending-verification", "verified-live", "measured"]}}, "required": ["actual_status"]},
+      "then": {
+        "properties": {
+          "permissions": {"properties": {"publish": {"const": true}}, "required": ["publish"]},
+          "destination": {"properties": {"url": {"$ref": "#/$defs/httpUrl"}}, "required": ["url"]}
+        }
+      }
+    },
+    {"if": {"properties": {"requested_status": {"const": "blocked"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"const": "blocked"}}}},
+    {"if": {"properties": {"requested_status": {"const": "draft-only"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only"]}}}},
+    {"if": {"properties": {"requested_status": {"const": "needs-evidence"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only", "needs-evidence"]}}}},
+    {"if": {"properties": {"requested_status": {"const": "needs-expert-review"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only", "needs-evidence", "needs-expert-review"]}}}},
+    {"if": {"properties": {"requested_status": {"const": "content-ready"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only", "needs-evidence", "needs-expert-review", "content-ready"]}}}},
+    {"if": {"properties": {"requested_status": {"const": "publish-package-ready"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only", "needs-evidence", "needs-expert-review", "content-ready", "publish-package-ready"]}}}},
+    {"if": {"properties": {"requested_status": {"const": "published-pending-verification"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only", "needs-evidence", "needs-expert-review", "content-ready", "publish-package-ready", "published-pending-verification"]}}}},
+    {"if": {"properties": {"requested_status": {"const": "verified-live"}}, "required": ["requested_status"]}, "then": {"properties": {"actual_status": {"enum": ["blocked", "draft-only", "needs-evidence", "needs-expert-review", "content-ready", "publish-package-ready", "published-pending-verification", "verified-live"]}}}}
+  ],
+  "$defs": {
+    "substantiveText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-unicode-letter-or-number": true
+    },
+    "httpUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://(?:(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|(?:(?![xX][nN]--)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)*(?![xX][nN]--)[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?::(?:[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?(?:[/?#][^\\s\\\\]*)?$",
+      "not": {
+        "anyOf": [
+          {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u2028-\\u2029]"},
+          {"pattern": "#"},
+          {"pattern": "%(?:2[fF]|5[cC])"},
+          {"pattern": "%(?![0-9A-Fa-f]{2})"},
+          {"pattern": "/(?:\\.|%2[eE])(?:\\.|%2[eE])?(?:/|[?#]|$)"}
+        ]
+      }
+    },
+    "actorIdentity": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "x-unicode-letter-or-number": true,
+      "not": {"anyOf": [
+        {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFFB]"},
+        {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+      ]},
+      "x-runtime-default-ignorable-ranges": ["1BCA0-1BCA3", "1D173-1D17A", "E0000-E0FFF"]
+    },
+    "nullableActor": {
+      "oneOf": [
+        {"$ref": "#/$defs/actorIdentity"},
+        {"type": "null"}
+      ]
+    },
+    "status": {
+      "enum": [
+        "blocked",
+        "draft-only",
+        "needs-evidence",
+        "needs-expert-review",
+        "content-ready",
+        "publish-package-ready",
+        "published-pending-verification",
+        "verified-live",
+        "measured"
+      ]
+    }
+  }
+}

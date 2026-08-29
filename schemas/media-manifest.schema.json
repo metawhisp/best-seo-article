@@ -1,0 +1,1308 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:best-seo-article:schema:media-manifest:0.1",
+  "title": "Best SEO Article media manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "commercial_use",
+    "policy",
+    "datasets",
+    "assets"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "run_id": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9]", "not": {"pattern": "[^A-Za-z0-9._-]"}},
+    "commercial_use": {
+      "type": "boolean"
+    },
+    "policy": {
+      "$ref": "#/$defs/policy"
+    },
+    "datasets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dataset"
+      },
+      "default": []
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "semanticText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "x-unicode-letter-or-number": true,
+      "not": {"pattern": "(?:\\[[Nn][Ee][Ee][Dd][Ss][^\\]]*\\]|\\b[Tt][Oo][Dd][Oo]\\b|\\b[Tt][Bb][Dd]\\b|<[Pp][Ll][Aa][Cc][Ee][Hh][Oo][Ll][Dd][Ee][Rr]>|[Ll][Oo][Rr][Ee][Mm] [Ii][Pp][Ss][Uu][Mm])"}
+    },
+    "reviewEvidence": {
+      "allOf": [
+        {"$ref": "#/$defs/semanticText"},
+        {
+          "not": {
+            "anyOf": [
+              {"pattern": "(?:[Ww][Aa][Ss]|[Ii][Ss]|[Ww][Ee][Rr][Ee]|[Aa][Rr][Ee])[ \\t]+[Nn][Oo][Tt][ \\t]+(?:[Cc][Hh][Ee][Cc][Kk][Ee][Dd]|[Vv][Ee][Rr][Ii][Ff][Ii][Ee][Dd]|[Oo][Bb][Ss][Ee][Rr][Vv][Ee][Dd]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt][Ee][Dd]|[Rr][Ee][Vv][Ii][Ee][Ww][Ee][Dd])"},
+              {"pattern": "(?:[Cc][Oo][Uu][Ll][Dd][ \\t]+[Nn][Oo][Tt]|[Uu][Nn][Aa][Bb][Ll][Ee][ \\t]+[Tt][Oo])[ \\t]+(?:[Cc][Hh][Ee][Cc][Kk]|[Vv][Ee][Rr][Ii][Ff][Yy]|[Oo][Bb][Ss][Ee][Rr][Vv][Ee]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt]|[Rr][Ee][Vv][Ii][Ee][Ww])"},
+              {"pattern": "(?:[Ee][Vv][Ii][Dd][Ee][Nn][Cc][Ee]|[Oo][Bb][Ss][Ee][Rr][Vv][Aa][Tt][Ii][Oo][Nn]|[Vv][Ee][Rr][Ii][Ff][Ii][Cc][Aa][Tt][Ii][Oo][Nn]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt][Ii][Oo][Nn]|[Rr][Ee][Vv][Ii][Ee][Ww])[ \\t]+(?:[Ii][Ss]|[Ww][Aa][Ss])[ \\t]+[Uu][Nn][Aa][Vv][Aa][Ii][Ll][Aa][Bb][Ll][Ee]"},
+              {"pattern": "[Nn][Oo][ \\t]+(?:[Oo][Bb][Ss][Ee][Rr][Vv][Aa][Tt][Ii][Oo][Nn]|[Ii][Nn][Ss][Pp][Ee][Cc][Tt][Ii][Oo][Nn]|[Vv][Ee][Rr][Ii][Ff][Ii][Cc][Aa][Tt][Ii][Oo][Nn]|[Rr][Ee][Vv][Ii][Ee][Ww]|[Cc][Hh][Ee][Cc][Kk])[ \\t]+(?:[Ww][Aa][Ss]|[Ii][Ss])[ \\t]+(?:[Mm][Aa][Dd][Ee]|[Pp][Ee][Rr][Ff][Oo][Rr][Mm][Ee][Dd]|[Rr][Ee][Cc][Oo][Rr][Dd][Ee][Dd])"}
+            ]
+          }
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "not": {"pattern": "[\\u0000-\\u001F\\u007F]"},
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)(?!.*\\/$)[^\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u061C\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFF8]+(?![\\s\\S])"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://(?:(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|(?:(?![xX][nN]--)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)*(?![xX][nN]--)[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?::(?:[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))?(?:[/?#][^\\s\\\\]*)?$",
+      "not": {
+        "anyOf": [
+          {"pattern": "[\\u0000-\\u001F\\u007F]"},
+          {"pattern": "%(?:2[fF]|5[cC])"},
+          {"pattern": "%(?![0-9A-Fa-f]{2})"},
+          {"pattern": "/(?:\\.|%2[eE])(?:\\.|%2[eE])?(?:/|[?#]|$)"}
+        ]
+      }
+    },
+    "rasterMime": {
+      "enum": ["image/png", "image/jpeg", "image/webp", "image/gif", "image/avif"]
+    },
+    "diagramMime": {
+      "enum": ["image/png", "image/jpeg", "image/webp", "image/gif", "image/avif", "image/svg+xml"]
+    },
+    "tableMime": {
+      "const": "text/html"
+    },
+    "videoMime": {
+      "enum": ["video/mp4", "video/webm"]
+    },
+    "datasetLicense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "license_id",
+        "commercial_use_allowed",
+        "attribution_required",
+        "attribution_text"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["verified", "pending", "unknown"]
+        },
+        "license_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "license_url": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "commercial_use_allowed": {
+          "type": "boolean"
+        },
+        "attribution_required": {
+          "type": "boolean"
+        },
+        "attribution_text": {
+          "type": "string",
+          "x-unicode-letter-or-number-when-nonempty": true
+        },
+        "evidence_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "evidence_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "anyOf": [
+        {"required": ["license_url"]},
+        {"required": ["evidence_path", "evidence_sha256"]}
+      ],
+      "dependentRequired": {
+        "evidence_path": ["evidence_sha256"]
+      }
+    },
+    "datasetField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "data_type", "description"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "data_type": {
+          "enum": ["string", "integer", "number", "boolean", "date", "datetime"]
+        },
+        "description": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "source_field": {
+          "type": "string"
+        }
+      }
+    },
+    "datasetTransformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transform_id",
+        "description",
+        "spec_path",
+        "spec_sha256",
+        "input_sha256",
+        "output_sha256"
+      ],
+      "properties": {
+        "transform_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "spec_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "spec_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "input_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id",
+        "title",
+        "publisher",
+        "retrieved_at",
+        "snapshot_path",
+        "snapshot_sha256",
+        "provenance_status",
+        "synthetic",
+        "methodology",
+        "license",
+        "fields",
+        "transformations"
+      ],
+      "properties": {
+        "dataset_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "title": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "publisher": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "source_url": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "source_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "source_path_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}
+        },
+        "snapshot_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "snapshot_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "provenance_status": {
+          "enum": ["verified", "pending", "unknown"]
+        },
+        "synthetic": {
+          "type": "boolean"
+        },
+        "methodology": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "time_range": {
+          "type": "string"
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "license": {
+          "$ref": "#/$defs/datasetLicense"
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/datasetField"
+          }
+        },
+        "transformations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/datasetTransformation"
+          },
+          "default": []
+        }
+      },
+      "anyOf": [
+        {"required": ["source_url"]},
+        {"required": ["source_path", "source_path_sha256"]}
+      ],
+      "dependentRequired": {
+        "source_path": ["source_path_sha256"]
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visuals_optional",
+        "discover_mode",
+        "performance_budgets"
+      ],
+      "properties": {
+        "visuals_optional": {
+          "const": true
+        },
+        "discover_mode": {
+          "type": "boolean"
+        },
+        "performance_budgets": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hero_max_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "inline_max_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "video_max_bytes": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "retrieved_at",
+        "creator"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "first_party",
+            "user_provided",
+            "licensed_stock",
+            "open_license",
+            "screenshot",
+            "derived_from_dataset",
+            "ai_generated"
+          ]
+        },
+        "source_url": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "source_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "source_path_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "asset_page_url": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}
+        },
+        "creator": {
+          "$ref": "#/$defs/semanticText"
+        }
+      },
+      "anyOf": [
+        {"required": ["source_url"]},
+        {"required": ["source_path", "source_path_sha256"]}
+      ],
+      "dependentRequired": {
+        "source_path": ["source_path_sha256"]
+      }
+    },
+    "reviewRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "reviewed_at", "evidence", "scopes"],
+      "properties": {
+        "reviewer": {"$ref": "#/$defs/semanticText"},
+        "reviewed_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+        "evidence": {"$ref": "#/$defs/reviewEvidence"},
+        "scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["general_rights", "model_release", "property_release", "ai_input_rights"]
+          }
+        },
+        "evidence_path": {"$ref": "#/$defs/relativePath"},
+        "evidence_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "dependentRequired": {
+        "evidence_path": ["evidence_sha256"]
+      }
+    },
+    "rights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "usage_basis",
+        "license_id",
+        "commercial_use_allowed",
+        "modification_allowed",
+        "attribution_required",
+        "attribution_text",
+        "editorial_only",
+        "depicts_recognizable_people",
+        "model_release_status",
+        "depicts_protected_property",
+        "property_release_status",
+        "manual_review_status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "verified",
+            "pending",
+            "unknown"
+          ]
+        },
+        "usage_basis": {
+          "enum": [
+            "owned",
+            "permission",
+            "licensed",
+            "public_domain",
+            "editorial_reviewed"
+          ]
+        },
+        "license_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "license_url": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "commercial_use_allowed": {
+          "type": "boolean"
+        },
+        "modification_allowed": {
+          "type": "boolean"
+        },
+        "attribution_required": {
+          "type": "boolean"
+        },
+        "attribution_text": {
+          "type": "string",
+          "x-unicode-letter-or-number-when-nonempty": true
+        },
+        "editorial_only": {
+          "type": "boolean"
+        },
+        "license_evidence_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "license_evidence_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "receipt_or_asset_id": {
+          "type": "string"
+        },
+        "depicts_recognizable_people": {
+          "type": "boolean"
+        },
+        "model_release_status": {
+          "enum": [
+            "not_applicable",
+            "verified",
+            "missing",
+            "unknown"
+          ]
+        },
+        "depicts_protected_property": {
+          "type": "boolean"
+        },
+        "property_release_status": {
+          "enum": [
+            "not_applicable",
+            "verified",
+            "missing",
+            "unknown"
+          ]
+        },
+        "manual_review_status": {
+          "enum": [
+            "approved",
+            "not_required",
+            "pending",
+            "rejected"
+          ]
+        },
+        "manual_review": {
+          "$ref": "#/$defs/reviewRecord"
+        }
+      },
+      "anyOf": [
+        {"required": ["license_url"]},
+        {"required": ["license_evidence_path", "license_evidence_sha256"]}
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {"manual_review_status": {"const": "approved"}},
+            "required": ["manual_review_status"]
+          },
+          "then": {"required": ["manual_review"]}
+        },
+        {
+          "if": {
+            "properties": {"depicts_recognizable_people": {"const": true}},
+            "required": ["depicts_recognizable_people"]
+          },
+          "then": {
+            "required": ["manual_review"],
+            "properties": {
+              "manual_review": {
+                "properties": {
+                  "scopes": {"contains": {"const": "model_release"}}
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"depicts_protected_property": {"const": true}},
+            "required": ["depicts_protected_property"]
+          },
+          "then": {
+            "required": ["manual_review"],
+            "properties": {
+              "manual_review": {
+                "properties": {
+                  "scopes": {"contains": {"const": "property_release"}}
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dependentRequired": {
+        "license_evidence_path": ["license_evidence_sha256"]
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decorative",
+        "alt"
+      ],
+      "properties": {
+        "decorative": {
+          "type": "boolean"
+        },
+        "alt": {
+          "type": "string",
+          "x-unicode-letter-or-number-when-informative": true
+        },
+        "long_description_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "long_description_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "data_table_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "data_table_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "color_not_sole_cue": {
+          "type": "boolean"
+        },
+        "contrast_review_status": {
+          "enum": [
+            "approved",
+            "pending",
+            "not_applicable"
+          ]
+        }
+      },
+      "dependentRequired": {
+        "long_description_path": ["long_description_sha256"],
+        "data_table_path": ["data_table_sha256"]
+      }
+    },
+    "performance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "above_fold",
+        "lcp_candidate",
+        "loading",
+        "fetchpriority",
+        "responsive"
+      ],
+      "properties": {
+        "above_fold": {
+          "type": "boolean"
+        },
+        "lcp_candidate": {
+          "type": "boolean"
+        },
+        "loading": {
+          "enum": [
+            "eager",
+            "lazy",
+            "auto"
+          ]
+        },
+        "fetchpriority": {
+          "enum": [
+            "high",
+            "low",
+            "auto"
+          ]
+        },
+        "responsive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "mime_type",
+        "width",
+        "height",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "mime_type": {
+          "enum": [
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/gif",
+            "image/avif",
+            "image/svg+xml",
+            "text/html",
+            "video/mp4",
+            "video/webm"
+          ]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "mime_type",
+        "bytes",
+        "transformed",
+        "variants"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "mime_type": {
+          "enum": [
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/gif",
+            "image/avif",
+            "image/svg+xml",
+            "text/html",
+            "video/mp4",
+            "video/webm"
+          ]
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "transformed": {
+          "type": "boolean"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/variant"
+          },
+          "default": []
+        }
+      }
+    },
+    "screenshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "captured_at",
+        "viewport_width",
+        "viewport_height",
+        "locale",
+        "authenticated",
+        "pii_review_status",
+        "redactions",
+        "original_path",
+        "original_sha256"
+      ],
+      "properties": {
+        "captured_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}
+        },
+        "viewport_width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "viewport_height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "locale": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "authenticated": {
+          "type": "boolean"
+        },
+        "pii_review_status": {
+          "enum": [
+            "approved",
+            "pending",
+            "failed"
+          ]
+        },
+        "redactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/semanticText"
+          }
+        },
+        "original_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "original_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "aiInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_id",
+        "kind",
+        "creator",
+        "retrieved_at",
+        "sha256",
+        "rights_status",
+        "usage_basis",
+        "commercial_use_allowed",
+        "modification_allowed"
+      ],
+      "properties": {
+        "input_id": {"$ref": "#/$defs/nonEmptyString"},
+        "kind": {"enum": ["reference_image", "source_asset", "mask", "control_image"]},
+        "creator": {"$ref": "#/$defs/semanticText"},
+        "retrieved_at": {"type": "string", "format": "date-time", "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$", "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "source_url": {"$ref": "#/$defs/httpsUrl"},
+        "source_path": {"$ref": "#/$defs/relativePath"},
+        "rights_status": {"const": "verified"},
+        "usage_basis": {
+          "enum": ["owned", "permission", "licensed", "public_domain", "editorial_reviewed"]
+        },
+        "commercial_use_allowed": {"type": "boolean"},
+        "modification_allowed": {"const": true},
+        "rights_evidence_url": {"$ref": "#/$defs/httpsUrl"},
+        "rights_evidence_path": {"$ref": "#/$defs/relativePath"},
+        "rights_evidence_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {"required": ["source_url"]},
+            {"required": ["source_path"]}
+          ]
+        },
+        {
+          "anyOf": [
+            {"required": ["rights_evidence_url"]},
+            {"required": ["rights_evidence_path", "rights_evidence_sha256"]}
+          ]
+        }
+      ]
+    },
+    "ai": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generated",
+        "provider",
+        "model",
+        "generated_at",
+        "prompt_sha256",
+        "input_assets",
+        "provenance_metadata_retained"
+      ],
+      "properties": {
+        "generated": {
+          "const": true
+        },
+        "provider": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "model": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+          "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}
+        },
+        "prompt_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "input_assets": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/aiInput"}
+        },
+        "provenance_metadata_retained": {
+          "type": "boolean"
+        },
+        "disclosure": {
+          "type": "string",
+          "x-unicode-letter-or-number-when-nonempty": true
+        }
+      }
+    },
+    "chartData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_id",
+        "field_names",
+        "transform_id",
+        "transform_output_sha256",
+        "spec_path",
+        "spec_sha256",
+        "units",
+        "synthetic",
+        "disclosure"
+      ],
+      "properties": {
+        "dataset_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "field_names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "transform_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "transform_output_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "spec_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "spec_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "units": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "synthetic": {
+          "type": "boolean"
+        },
+        "disclosure": {
+          "type": "string",
+          "x-unicode-letter-or-number-when-nonempty": true
+        }
+      }
+    },
+    "video": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "meaningful_audio",
+        "poster_path"
+      ],
+      "properties": {
+        "meaningful_audio": {
+          "type": "boolean"
+        },
+        "captions_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "captions_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "transcript_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "transcript_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "visual_description_path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "visual_description_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "poster_path": {
+          "$ref": "#/$defs/relativePath"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "meaningful_audio": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "captions_path",
+              "captions_sha256",
+              "transcript_path",
+              "transcript_sha256"
+            ]
+          }
+        },
+        {
+          "if": {"required": ["visual_description_path"]},
+          "then": {"required": ["visual_description_sha256"]}
+        }
+      ]
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "type",
+        "purpose",
+        "claim_ids",
+        "evidence_use",
+        "source",
+        "rights",
+        "accessibility",
+        "performance",
+        "output"
+      ],
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "type": {
+          "enum": [
+            "hero",
+            "screenshot",
+            "diagram",
+            "table",
+            "chart",
+            "video"
+          ]
+        },
+        "purpose": {
+          "$ref": "#/$defs/semanticText"
+        },
+        "claim_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "evidence_use": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "rights": {
+          "$ref": "#/$defs/rights"
+        },
+        "accessibility": {
+          "$ref": "#/$defs/accessibility"
+        },
+        "performance": {
+          "$ref": "#/$defs/performance"
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "screenshot": {
+          "$ref": "#/$defs/screenshot"
+        },
+        "ai": {
+          "$ref": "#/$defs/ai"
+        },
+        "chart_data": {
+          "$ref": "#/$defs/chartData"
+        },
+        "video": {
+          "$ref": "#/$defs/video"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"type": {"enum": ["hero", "screenshot"]}},
+            "required": ["type"]
+          },
+          "then": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "mime_type": {"$ref": "#/$defs/rasterMime"},
+                  "variants": {
+                    "items": {
+                      "properties": {
+                        "mime_type": {"$ref": "#/$defs/rasterMime"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"type": {"enum": ["diagram", "chart"]}},
+            "required": ["type"]
+          },
+          "then": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "mime_type": {"$ref": "#/$defs/diagramMime"},
+                  "variants": {
+                    "items": {
+                      "properties": {
+                        "mime_type": {"$ref": "#/$defs/diagramMime"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"type": {"const": "table"}},
+            "required": ["type"]
+          },
+          "then": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "mime_type": {"$ref": "#/$defs/tableMime"},
+                  "variants": {
+                    "items": {
+                      "properties": {
+                        "mime_type": {"$ref": "#/$defs/tableMime"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"type": {"const": "video"}},
+            "required": ["type"]
+          },
+          "then": {
+            "properties": {
+              "output": {
+                "properties": {
+                  "mime_type": {"$ref": "#/$defs/videoMime"},
+                  "variants": {
+                    "items": {
+                      "properties": {
+                        "mime_type": {"$ref": "#/$defs/videoMime"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "accessibility": {
+                "properties": {
+                  "decorative": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "decorative"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence_use": {
+                "const": false
+              },
+              "accessibility": {
+                "properties": {
+                  "alt": {
+                    "const": ""
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "accessibility": {
+                "properties": {
+                  "alt": {
+                    "$ref": "#/$defs/semanticText"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "screenshot"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "screenshot"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "chart"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "chart_data"
+            ],
+            "properties": {
+              "accessibility": {
+                "required": [
+                  "long_description_path",
+                  "long_description_sha256",
+                  "data_table_path",
+                  "data_table_sha256",
+                  "color_not_sole_cue",
+                  "contrast_review_status"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "diagram"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "accessibility": {
+                "required": [
+                  "long_description_path",
+                  "long_description_sha256",
+                  "color_not_sole_cue",
+                  "contrast_review_status"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "video"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "video"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "properties": {
+                  "kind": {
+                    "const": "ai_generated"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "ai"
+            ],
+            "properties": {
+              "evidence_use": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence_use": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "chart_data": {
+                "properties": {
+                  "synthetic": {
+                    "const": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

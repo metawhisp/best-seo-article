@@ -1,0 +1,740 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Best SEO Article Capability Preflight",
+  "description": "Offline capability and graceful-degradation report for the v0.1 SEO article workflow.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "checked_at",
+    "generated_by",
+    "policy",
+    "capabilities",
+    "limitations",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?!0000)[0-9]{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12][0-9]|3[01])|(?:0[469]|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26]))|(?:(?:0[48]|[2468][048]|[13579][26])00))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "not": {"pattern": "[\\u0000-\\u001F\\u007F]"}
+    },
+    "generated_by": {
+      "const": "capability_preflight.py"
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_calls_made",
+        "secret_values_emitted",
+        "paid_use_requires_explicit_approval",
+        "unknown_cost_requires_explicit_approval"
+      ],
+      "properties": {
+        "network_calls_made": {
+          "const": false
+        },
+        "secret_values_emitted": {
+          "const": false
+        },
+        "paid_use_requires_explicit_approval": {
+          "const": true
+        },
+        "unknown_cost_requires_explicit_approval": {
+          "const": true
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serp",
+        "keywords",
+        "gsc",
+        "ga4",
+        "crawl",
+        "cwv",
+        "fact_check",
+        "images",
+        "charts",
+        "cms"
+      ],
+      "properties": {
+        "serp": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "keywords": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "gsc": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "ga4": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "crawl": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "cwv": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "fact_check": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "images": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "charts": {
+          "$ref": "#/$defs/capability_state"
+        },
+        "cms": {
+          "$ref": "#/$defs/capability_state"
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/safe_string"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "counts",
+        "usable_capabilities",
+        "unavailable_capabilities",
+        "cost_approval_blocked_capabilities",
+        "all_capabilities_usable",
+        "degraded"
+      ],
+      "properties": {
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "AVAILABLE",
+            "USER_EXPORT",
+            "FALLBACK",
+            "UNAVAILABLE"
+          ],
+          "properties": {
+            "AVAILABLE": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "USER_EXPORT": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "FALLBACK": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "UNAVAILABLE": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        },
+        "usable_capabilities": {
+          "$ref": "#/$defs/capability_list"
+        },
+        "unavailable_capabilities": {
+          "$ref": "#/$defs/capability_list"
+        },
+        "cost_approval_blocked_capabilities": {
+          "$ref": "#/$defs/capability_list"
+        },
+        "all_capabilities_usable": {
+          "type": "boolean"
+        },
+        "degraded": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "capabilities": {
+          "properties": {
+            "serp": {
+              "properties": {"absence_effect": {"const": "Use a dated manual browser snapshot; limit claims to the observed query, locale, device, and results, without implying exhaustive or repeatable rank tracking."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "manual-serp-capture"}}}}]
+            },
+            "keywords": {
+              "properties": {"absence_effect": {"const": "Build a semantic map from first-party inputs only; leave volume, CPC, and difficulty unavailable."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "first-party-semantic-research"}}}}]
+            },
+            "gsc": {
+              "properties": {"absence_effect": {"const": "No existing-query, cannibalization, or Google post-publish baseline; keep GSC measurement pending."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": false}]
+            },
+            "ga4": {
+              "properties": {"absence_effect": {"const": "Do not claim engagement or conversion lift; keep GA4 measurement pending."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": false}]
+            },
+            "crawl": {
+              "properties": {"absence_effect": {"const": "Limit conclusions to explicitly inspected URLs; do not claim full-site or orphan-page coverage."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "bounded-sitemap-http-review"}}}}]
+            },
+            "cwv": {
+              "properties": {"absence_effect": {"const": "Do not report Core Web Vitals; keep performance QA incomplete."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "manual-performance-checklist"}}}}]
+            },
+            "fact_check": {
+              "properties": {"absence_effect": {"const": "Remove, qualify, or mark unsupported material claims; unresolved YMYL claims block editorial readiness."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "primary-source-claim-ledger"}}}}]
+            },
+            "images": {
+              "properties": {"absence_effect": {"const": "Return image briefs, dimensions, alt text, and provenance requirements; do not invent image files or URLs."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "image-brief-and-owned-assets"}}}}]
+            },
+            "charts": {
+              "properties": {"absence_effect": {"const": "Return a sourced table or chart specification only; do not chart missing data."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "sourced-table-or-svg-spec"}}}}]
+            },
+            "cms": {
+              "properties": {"absence_effect": {"const": "Create an agreed portable package or stop at content-ready; never claim CMS validation or publication."}},
+              "allOf": [{"if": {"properties": {"selected_by": {"const": "builtin-fallback"}}, "required": ["selected_by"]}, "then": {"properties": {"selected_provider": {"const": "cms-neutral-publish-package"}}}}]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "capability_name": {
+      "enum": [
+        "serp",
+        "keywords",
+        "gsc",
+        "ga4",
+        "crawl",
+        "cwv",
+        "fact_check",
+        "images",
+        "charts",
+        "cms"
+      ]
+    },
+    "capability_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/capability_name"
+      }
+    },
+    "safe_string": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F\\u061C\\u180E\\u200B\\u200E\\u200F\\u2028-\\u202E\\u2060-\\u2069\\uFEFF]+(?![\\s\\S])",
+      "not": {"pattern": "[\\u0000-\\u001F\\u007F-\\u009F\\u00AD\\u034F\\u0600-\\u0605\\u061C\\u06DD\\u070F\\u0890-\\u0891\\u08E2\\u115F-\\u1160\\u17B4-\\u17B5\\u180B-\\u180F\\u200B-\\u200F\\u2028-\\u202E\\u2060-\\u206F\\u2800\\u3164\\uFE00-\\uFE0F\\uFEFF\\uFFA0\\uFFF0-\\uFFFB]"}
+    },
+    "provider_label": {
+      "allOf": [
+        {"$ref": "#/$defs/safe_string"},
+        {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+ -]*$"}
+      ]
+    },
+    "absolute_path": {
+      "allOf": [
+        {"$ref": "#/$defs/safe_string"},
+        {"pattern": "^(?!.*[\\\\/]{2})(?!.*[\\\\/](?:\\.|\\.\\.)(?:[\\\\/]|$))(?:/|[A-Za-z]:[\\\\/])"},
+        {"pattern": "[^\\\\/](?![\\s\\S])"}
+      ]
+    },
+    "nullable_provider": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/provider_label"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "references",
+        "present",
+        "present_count",
+        "required_count"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "none",
+            "explicit-flag",
+            "environment",
+            "file"
+          ]
+        },
+        "references": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safe_string"
+          }
+        },
+        "present": {
+          "type": "boolean"
+        },
+        "present_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "required_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"kind": {"const": "none"}},
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "references": {"maxItems": 0},
+              "present": {"const": false},
+              "present_count": {"const": 0},
+              "required_count": {"const": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"kind": {"enum": ["explicit-flag", "environment", "file"]}},
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "references": {"minItems": 1},
+              "required_count": {"minimum": 1}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"present": {"const": true}},
+            "required": ["present"]
+          },
+          "then": {
+            "properties": {"present_count": {"minimum": 1}}
+          }
+        },
+        {
+          "if": {
+            "properties": {"kind": {"const": "file"}},
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "references": {
+                "items": {"$ref": "#/$defs/absolute_path"}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "approval_required",
+        "approved"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "none",
+            "free",
+            "paid",
+            "unknown"
+          ]
+        },
+        "approval_required": {
+          "type": "boolean"
+        },
+        "approved": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "none",
+                  "free"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "approval_required": {
+                "const": false
+              },
+              "approved": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "paid",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "approval_required": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "probe",
+        "cost"
+      ],
+      "properties": {
+        "provider": {
+          "$ref": "#/$defs/nullable_provider"
+        },
+        "probe": {
+          "$ref": "#/$defs/probe"
+        },
+        "cost": {
+          "$ref": "#/$defs/cost"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"probe": {"properties": {"kind": {"const": "none"}}, "required": ["kind"]}},
+            "required": ["probe"]
+          },
+          "then": {
+            "properties": {
+              "provider": {"type": "null"},
+              "cost": {"properties": {"kind": {"const": "none"}}}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"probe": {"properties": {"kind": {"enum": ["explicit-flag", "environment", "file"]}}, "required": ["kind"]}},
+            "required": ["probe"]
+          },
+          "then": {
+            "properties": {
+              "provider": {"$ref": "#/$defs/provider_label"},
+              "cost": {"properties": {"kind": {"enum": ["free", "paid", "unknown"]}}}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"probe": {"properties": {"kind": {"const": "file"}}, "required": ["kind"]}},
+            "required": ["probe"]
+          },
+          "then": {
+            "properties": {"cost": {"properties": {"kind": {"const": "free"}}}}
+          }
+        }
+      ]
+    },
+    "capability_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "selected_provider",
+        "selected_by",
+        "candidate",
+        "reason_code",
+        "absence_effect"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "AVAILABLE",
+            "USER_EXPORT",
+            "FALLBACK",
+            "UNAVAILABLE"
+          ]
+        },
+        "selected_provider": {
+          "$ref": "#/$defs/nullable_provider"
+        },
+        "selected_by": {
+          "enum": [
+            "none",
+            "explicit-flag",
+            "environment",
+            "user-export",
+            "builtin-fallback",
+            "configured-fallback"
+          ]
+        },
+        "candidate": {
+          "$ref": "#/$defs/candidate"
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "absence_effect": {
+          "$ref": "#/$defs/safe_string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "AVAILABLE"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "selected_provider": {
+                "type": "string",
+                "minLength": 1
+              },
+              "selected_by": {
+                "enum": [
+                  "explicit-flag",
+                  "environment"
+                ]
+              },
+              "reason_code": {
+                "const": "EXPLICIT_CAPABILITY_AVAILABLE"
+              },
+              "candidate": {
+                "properties": {
+                  "provider": {"$ref": "#/$defs/provider_label"},
+                  "probe": {
+                    "properties": {
+                      "kind": {"enum": ["explicit-flag", "environment"]},
+                      "references": {"minItems": 1},
+                      "present": {"const": true},
+                      "present_count": {"minimum": 1},
+                      "required_count": {"minimum": 1}
+                    }
+                  },
+                  "cost": {
+                    "properties": {"kind": {"enum": ["free", "paid", "unknown"]}}
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "USER_EXPORT"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "selected_provider": {
+                "type": "string",
+                "minLength": 1
+              },
+              "selected_by": {
+                "const": "user-export"
+              },
+              "reason_code": {
+                "const": "USER_EXPORT_PRESENT"
+              },
+              "candidate": {
+                "properties": {
+                  "provider": {"$ref": "#/$defs/provider_label"},
+                  "probe": {
+                    "properties": {
+                      "kind": {"const": "file"},
+                      "references": {"minItems": 1},
+                      "present": {"const": true},
+                      "present_count": {"minimum": 1},
+                      "required_count": {"minimum": 1}
+                    }
+                  },
+                  "cost": {
+                    "properties": {
+                      "kind": {"const": "free"},
+                      "approval_required": {"const": false},
+                      "approved": {"const": false}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "FALLBACK"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "selected_provider": {
+                "type": "string",
+                "minLength": 1
+              },
+              "selected_by": {
+                "enum": [
+                  "builtin-fallback",
+                  "configured-fallback"
+                ]
+              },
+              "reason_code": {
+                "enum": [
+                  "FREE_FALLBACK_SELECTED",
+                  "PROBE_NOT_PRESENT_FALLBACK_SELECTED",
+                  "COST_APPROVAL_REQUIRED_FALLBACK_SELECTED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "UNAVAILABLE"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "selected_provider": {
+                "type": "null"
+              },
+              "selected_by": {
+                "const": "none"
+              },
+              "reason_code": {
+                "enum": [
+                  "NO_PROVIDER_OR_EXPORT",
+                  "PROBE_NOT_PRESENT",
+                  "COST_APPROVAL_REQUIRED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "AVAILABLE"
+              },
+              "candidate": {
+                "properties": {
+                  "cost": {
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "paid",
+                          "unknown"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ]
+                  }
+                },
+                "required": [
+                  "cost"
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "candidate"
+            ]
+          },
+          "then": {
+            "properties": {
+              "candidate": {
+                "properties": {
+                  "cost": {
+                    "properties": {
+                      "approved": {
+                        "const": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
