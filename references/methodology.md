@@ -31,13 +31,16 @@ is required:
 | `original-test` | Protocol, date, setup, results, limitations, source/claim IDs, and a visible article section | A product, workflow, tool, or migration comparison where hands-on behaviour changes the choice. |
 | `original-data` | Dataset or export, collection method, scope, calculations, limitations, source/claim IDs, and a visible article section | A benchmark, survey, usage analysis, or audited first-party result. |
 | `expert-input` | Named qualified input, scope, date, disclosure/permission, limitations, source/claim IDs, and a visible article section | A consequential or specialist decision where an expert can add real judgment. |
-| `reader-tool` | A usable, bounded decision aid with inputs, steps, outputs, limitations, and a visible article section | A guide or how-to. It cannot be the only advantage in a competitive comparison. |
+| `decision-framework` | A usable, bounded decision aid with inputs, steps, outputs, limitations, source/claim IDs, and a visible article section | A comparison, guide, or how-to where a reader needs to choose among documented trade-offs. |
+| `serp-synthesis` | A source-bound explanation of the intent, recurring questions, conflicts, and a specific unserved decision | A page that resolves a real SERP coverage gap without claiming original experimental results. |
 
-For a comparison, an empirical advantage (`original-test`, `original-data`, or
-`expert-input`) is mandatory. A vendor-feature table, a rewritten competitor
-outline, and a generic "try both" checklist do not qualify. If that evidence is
-not available, write a clearly scoped standard comparison or stop at
-`needs-evidence`; do not call it a competitive article.
+An empirical advantage (`original-test`, `original-data`, or `expert-input`) is
+required only when the article claims testable outcomes such as accuracy, speed,
+reliability, security, or compatibility. For ordinary scalable SEO production,
+the advantage may instead be a source-bound `serp-synthesis` or
+`decision-framework`. A vendor-feature table, copied competitor outline, or
+generic "try both" checklist does not qualify because it does not resolve a
+specific reader decision or coverage gap.
 
 ## 2. Start with the minimum useful input
 
@@ -91,6 +94,24 @@ For each opened competitor, capture only observations needed for the decision:
 | Page | Reader job/intent | Format and decisive sections | Evidence type | Missing, weak, stale, or unsafe element |
 |---|---|---|---|---|
 | URL and title | What it helps a reader do | Guide, comparison, tool, category, etc. | Official source, test, opinion, unspecified | Observation, not a copied outline |
+
+Use this compact SERP research matrix for every Full article. It is the
+repeatable core of the workflow; none of its fields asks the writer to guess a
+keyword score or a ranking outcome.
+
+| Signal | Record | Why it changes the article |
+|---|---|---|
+| Query context | Exact query, locale, device, date/time, acquisition method | Intent and results change by market and over time. |
+| Result shape | Observed rank, title/URL, page type, result feature, video/community presence | Prevents writing the wrong format for the actual SERP. |
+| Coverage | Reader job, main-content word count and method, key sections/entities, freshness | Reveals what has already been answered; word count is context, never a quota. |
+| Evidence quality | Whether the page is official, primary, editorial, opinion, product-led, or unknown | Competitors reveal coverage; they do not automatically prove facts. |
+| Unserved decision | One reader question, constraint, contradiction, or missing implementation step | Becomes the article's information gain and acceptance criterion. |
+| Optional SEO data | Dated provider/export, scope, volume, difficulty, ranking, links, GSC performance | Use only when supplied or permitted. Mark unavailable data; never fabricate it. |
+
+Search public video and community discussions when they expose recurring
+reader questions, terminology, objections, or a format Google visibly serves.
+Treat them as demand/coverage signals, not proof of a product or performance
+claim unless the underlying assertion is independently sourced.
 
 Then write these five conclusions in plain language:
 

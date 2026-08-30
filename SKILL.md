@@ -60,7 +60,7 @@ The workflow does not require a paid SEO platform. Start with current public pag
 1. Create the run manifest and intake; bind their shared identity, YMYL risk/jurisdiction, roles, exact destination, protected rewrite scope, requested maximum status, and permissions before research.
 2. For `rewrite` or `refresh`, preserve the original page and baseline before editing.
 3. Inspect the owned-site corpus, sitemap, exports, and relevant queries for overlap. Compare candidate queries against the reader job, business relevance, observed SERP, evidence advantage, and cannibalization risk in `research/query-decision.md`. Recommend a mode change instead of silently creating a cannibalizing page.
-4. Capture a dated SERP and source snapshot appropriate to the language, locale, and device. Declare whether each was agent-acquired or user-provided. Open the leading relevant results; do not rely on snippets alone. Record the observed intent, formats, reader constraints, and top-five coverage gap in `research/intent-gap.md`. In `research/quality-gate.json`, record each relevant page's format, reader job, main-content length method/count, gap, and competitive standard. Full work needs five or more relevant opened pages and a demonstrated reader advantage: original test/data, expert input, or (for non-comparisons) a usable decision tool. A content-ready SERP snapshot is at most 31 days old; refresh sooner for volatile intent.
+4. Capture a dated SERP and source snapshot appropriate to the language, locale, and device. Declare whether each was agent-acquired or user-provided. Open the leading relevant results; do not rely on snippets alone. Record the observed intent, formats, reader constraints, public questions or video coverage when relevant, and top-five coverage gap in `research/intent-gap.md`. In `research/quality-gate.json`, record each relevant page's format, reader job, main-content length method/count, gap, and competitive standard. Full work needs five or more relevant opened pages and a demonstrated reader advantage: source-bound SERP synthesis, a decision framework, original test/data, or expert input. Use a product test only when it is necessary for a claimed outcome; do not make installation or paid access a default requirement. A content-ready SERP snapshot is at most 31 days old; refresh sooner for volatile intent.
 5. Build a source plan, then source and claim ledgers before drafting load-bearing factual sections. Treat a first-party assertion as publishable evidence only when its owner, scope, date, method, and disclosure permission are recorded.
 6. Write a brief with reader job, primary intent, information gain, exclusions, internal journey, conversion goal, and acceptance criteria. Design the answer before writing the introduction.
 7. Plan only media that explains, proves, compares, or enables an action. Read [references/visuals-and-data.md](references/visuals-and-data.md) when media, screenshots, tables, charts, diagrams, or video are relevant. A visual count is never a quality target.
@@ -73,11 +73,11 @@ The workflow does not require a paid SEO platform. Start with current public pag
 
 Read [references/research-and-evidence.md](references/research-and-evidence.md) for source and claim rules, [references/methodology.md](references/methodology.md) for the decision method, and [references/editorial-contract.md](references/editorial-contract.md) for drafting and review.
 
-For a Full product, workflow, or service comparison, read
-[references/pairwise-comparison-evidence.md](references/pairwise-comparison-evidence.md)
-before drafting a winner, speed, accuracy, reliability, privacy, or
-compatibility conclusion. It defines the minimum reproducible evidence packet;
-do not replace it with a generic "try both" checklist.
+Read [references/pairwise-comparison-evidence.md](references/pairwise-comparison-evidence.md)
+only before drafting a winner, speed, accuracy, reliability, privacy, or
+compatibility conclusion from original testing. It defines the minimum
+reproducible evidence packet; it is not required for a normal source-led SEO
+comparison.
 
 ## Risk routing
 

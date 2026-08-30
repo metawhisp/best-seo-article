@@ -109,7 +109,7 @@ EDITORIAL_QUALITY_CHECKS = {
     "journey_and_conversion",
 }
 QUALITY_FORMATS = {"guide", "comparison", "how-to", "list", "category", "opinion", "other"}
-COMPETITIVE_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input", "reader-tool", "none"}
+COMPETITIVE_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input", "decision-framework", "serp-synthesis", "none"}
 EMPIRICAL_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input"}
 ORIGINAL_EVIDENCE_SOURCE_TYPES = {"primary", "first-party", "user-provided"}
 PAGE_FILTER_FIELDS = {
@@ -2113,16 +2113,12 @@ def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[d
             unsupported_sources = sorted(source_id for source_id in source_ids or [] if source_types.get(source_id) not in ORIGINAL_EVIDENCE_SOURCE_TYPES)
             if unsupported_sources:
                 findings.append(finding("QUALITY_READER_ADVANTAGE_SOURCE_INVALID", "P1", "Original tests, data, or expert input require primary, first-party, or user-provided evidence", source_ids=unsupported_sources))
-        if article_format == "comparison" and advantage_kind == "reader-tool":
-            findings.append(finding("QUALITY_COMPARISON_EMPIRICAL_ADVANTAGE_REQUIRED", "P1", "A SERP-competitive comparison needs original test, data, or expert input; a generic decision tool alone is insufficient"))
     else:
         if advantage_kind != "none" or source_ids or claim_ids or substantive_evidence(advantage.get("method")):
             findings.append(finding("QUALITY_READER_ADVANTAGE_CONTRADICTION", "P1", "A non-demonstrated reader advantage must use kind none with empty evidence and method"))
 
     if competitive_standard == "serp-competitive" and not demonstrated:
         findings.append(finding("QUALITY_COMPETITIVE_ADVANTAGE_REQUIRED", "P1", "A SERP-competitive article needs demonstrated reader value beyond a sourced summary"))
-    if competitive_standard == "serp-competitive" and article_format == "comparison" and advantage_kind not in EMPIRICAL_ADVANTAGE_KINDS:
-        findings.append(finding("QUALITY_COMPARISON_EMPIRICAL_ADVANTAGE_REQUIRED", "P1", "A SERP-competitive comparison needs original test, data, or expert input tied to the decision"))
 
     visual = payload.get("visual_data_decision")
     expected_visual = {"decision", "rationale", "article_headings"}

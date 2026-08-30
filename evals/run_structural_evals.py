@@ -684,7 +684,57 @@ class StructuralEvals(unittest.TestCase):
         self.assertEqual(code, 1)
         hard_codes = {item["code"] for item in report["findings"] if item["severity"] in {"P0", "P1"}}
         self.assertIn("QUALITY_COMPETITIVE_ADVANTAGE_REQUIRED", hard_codes, report)
-        self.assertIn("QUALITY_COMPARISON_EMPIRICAL_ADVANTAGE_REQUIRED", hard_codes, report)
+
+    def test_full_competitive_comparison_accepts_bound_decision_framework(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            serp_path = root / "research/serp.json"
+            serp = json.loads(serp_path.read_text(encoding="utf-8"))
+            gate_path = root / "research/quality-gate.json"
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            base_result = gate["serp_assessment"]["relevant_results"][0]
+            for index in range(2, 6):
+                url = f"https://example.test/serp-{index}"
+                serp["results"].append({"url": url, "opened": True})
+                gate["serp_assessment"]["relevant_results"].append(
+                    {
+                        **base_result,
+                        "url": url,
+                        "position": index,
+                        "gap": f"Observed gap {index}: the page does not map documented constraints to a bounded choice.",
+                    }
+                )
+            gate["operating_depth"] = "full"
+            gate["competitive_standard"] = "serp-competitive"
+            gate["article_shape"]["format"] = "comparison"
+            gate["reader_path"]["decision_criteria"].append(
+                {
+                    "criterion": "Choose according to the documented constraint.",
+                    "reader_consequence": "The reader can select a first option without turning feature copy into a performance claim.",
+                    "evidence_basis": "The decision framework maps the documented boundary to a scoped next action.",
+                    "claim_ids": ["C1"],
+                }
+            )
+            write_text(
+                root / "drafts/final.md",
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n\n## Decision framework\n\nIf the documented constraint applies, choose the matching first evaluation. This is not a performance benchmark.\n",
+            )
+            gate["reader_advantage"] = {
+                "status": "demonstrated",
+                "kind": "decision-framework",
+                "reader_problem": "Readers need a bounded way to act on documented trade-offs instead of a generic feature summary.",
+                "article_heading": "Decision framework",
+                "method": "Map each documented hard constraint to one first evaluation, then reserve performance claims for evidence that measures them.",
+                "evidence_source_ids": ["S1"],
+                "claim_ids": ["C1"],
+                "limitation": "The framework selects a first evaluation; it does not prove accuracy, latency, privacy, reliability, or compatibility outcomes.",
+            }
+            write_json(serp_path, serp)
+            write_json(gate_path, gate)
+            refresh_content_reviews(root)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 0, report)
 
     def test_full_competitive_comparison_accepts_bound_original_test(self):
         def builder(root: Path) -> None:

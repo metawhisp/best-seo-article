@@ -114,7 +114,7 @@
       "required": ["status", "kind", "reader_problem", "article_heading", "method", "evidence_source_ids", "claim_ids", "limitation"],
       "properties": {
         "status": {"enum": ["demonstrated", "not-demonstrated"]},
-        "kind": {"enum": ["original-test", "original-data", "expert-input", "reader-tool", "none"]},
+        "kind": {"enum": ["original-test", "original-data", "expert-input", "decision-framework", "serp-synthesis", "none"]},
         "reader_problem": {"$ref": "#/$defs/text"},
         "article_heading": {"$ref": "#/$defs/text"},
         "method": {"type": "string"},
