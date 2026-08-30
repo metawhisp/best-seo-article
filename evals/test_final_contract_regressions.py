@@ -505,6 +505,35 @@ class FinalContractRegressions(unittest.TestCase):
             self.assertEqual(json.loads(result.stderr)["error"], "output_not_directory")
             self.assertNotIn("Traceback", result.stderr)
 
+    def test_init_scaffolds_the_current_quality_gate_contract(self) -> None:
+        init = SKILL_ROOT / "scripts/init_run.py"
+        with tempfile.TemporaryDirectory(prefix="seo-init-quality-gate-") as temporary:
+            output = Path(temporary) / "run"
+            result = subprocess.run(
+                [sys.executable, str(init), "--mode", "new", "--target", "topic", "--output", str(output)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result)
+            gate = json.loads((output / "research/quality-gate.json").read_text(encoding="utf-8"))
+            self.assertEqual(gate["contract_version"], "article-quality-gate-v2")
+            self.assertEqual(
+                set(gate),
+                {
+                    "contract_version",
+                    "run_id",
+                    "operating_depth",
+                    "competitive_standard",
+                    "serp_assessment",
+                    "reader_path",
+                    "article_shape",
+                    "information_gain",
+                    "reader_advantage",
+                    "visual_data_decision",
+                },
+            )
+
     def test_bound_scope_objects_use_the_closed_intake_shape(self) -> None:
         with tempfile.TemporaryDirectory(prefix="seo-scope-shape-") as temporary:
             root = Path(temporary)

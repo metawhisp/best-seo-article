@@ -201,13 +201,15 @@ def main() -> int:
     write_json(
         root / "research/quality-gate.json",
         {
-            "contract_version": "article-quality-gate-v1",
+            "contract_version": "article-quality-gate-v2",
             "run_id": run_id,
             "operating_depth": None,
+            "competitive_standard": None,
             "serp_assessment": None,
             "reader_path": None,
             "article_shape": None,
             "information_gain": None,
+            "reader_advantage": None,
             "visual_data_decision": None,
         },
     )
