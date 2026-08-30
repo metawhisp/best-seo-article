@@ -65,6 +65,10 @@ digital signature.
 - Use the structure needed by the topic and intent; do not copy a competitor outline mechanically.
 - Include only claims supported by the research and claim ledgers.
 - Distinguish facts, first-party evidence, opinion, and inference.
+- For a named comparison, audit parity before approving the reader path: every
+  decisive criterion must be investigated for each named option at the same
+  level of detail, or the missing side must be marked unknown. A partial
+  competitor description cannot support a product recommendation.
 - Preserve brand voice without sacrificing clarity, truth, or required risk language.
 - Use natural terminology and entities. Do not calculate keyword density.
 - Let coverage determine length. Do not target a fixed word count.

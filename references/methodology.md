@@ -139,6 +139,21 @@ and SERP-length context, information gain, and a reasoned visual/data choice.
 This is evidence for editorial judgment, not a fixed word-count target or an
 automatic quality score.
 
+### Comparison parity check
+
+Before drawing a recommendation in a named comparison, make one compact matrix
+for each decision criterion: plan/access, platform, input/output, processing
+stages, permissions, data boundary, workflow integration, and any other factor
+that changes the reader's choice. For every named option, record either the
+same-level supporting source or `unknown` with the reason it is unknown.
+
+Do not compare a fully documented capability on one side with an incomplete
+description on the other. For example, if one product has styles or a rewrite
+flow, inspect whether the other offers Raw, cleanup, rewrite, templates, or a
+different processing boundary before presenting "formatting" as a difference.
+Missing parity evidence narrows the recommendation; it never becomes proof that
+the capability is absent.
+
 ## 5. Plan evidence and first-party proof
 
 Create `research/source-plan.md` before drafting load-bearing sections. For
