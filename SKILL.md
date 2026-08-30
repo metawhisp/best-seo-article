@@ -73,6 +73,12 @@ The workflow does not require a paid SEO platform. Start with current public pag
 
 Read [references/research-and-evidence.md](references/research-and-evidence.md) for source and claim rules, [references/methodology.md](references/methodology.md) for the decision method, and [references/editorial-contract.md](references/editorial-contract.md) for drafting and review.
 
+For a Full product, workflow, or service comparison, read
+[references/pairwise-comparison-evidence.md](references/pairwise-comparison-evidence.md)
+before drafting a winner, speed, accuracy, reliability, privacy, or
+compatibility conclusion. It defines the minimum reproducible evidence packet;
+do not replace it with a generic "try both" checklist.
+
 ## Risk routing
 
 Classify YMYL before research and again after drafting. Medical, legal, tax, financial, investment, insurance, and safety-critical advice must use current primary or official sources, state locale/jurisdiction and `as_of`, and receive a real qualified reviewer where the content could influence consequential decisions. Without that review, maximum status is `needs-expert-review`. Read [references/ymyl.md](references/ymyl.md).
