@@ -21,7 +21,9 @@ matches the request.
   reviewable decisions rather than inferred from a keyword score.
 - `content-ready` requires an article-quality gate: opened relevant SERP pages
   with observed format/length/gaps, a mapped reader path, information gain,
-  an evidence-backed content shape, and a reasoned visual/data decision.
+  an evidence-backed content shape, a reasoned visual/data decision, and—at
+  Full competitive depth—a demonstrated reader advantage rather than a sourced
+  summary alone.
 - A passed editorial review must assess intent, truth, information gain,
   utility, clarity, and conversion; a handoff cannot disagree with the run's
   actual status.

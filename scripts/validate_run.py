@@ -91,7 +91,7 @@ CAPABILITY_ORDER = ("serp", "keywords", "gsc", "ga4", "crawl", "cwv", "fact_chec
 CAPABILITY_NAMES = set(CAPABILITY_ORDER)
 CAPABILITY_STATES = {"AVAILABLE", "USER_EXPORT", "FALLBACK", "UNAVAILABLE"}
 REVIEW_BINDING_VERSION = "review-binding-v1"
-QUALITY_GATE_VERSION = "article-quality-gate-v1"
+QUALITY_GATE_VERSION = "article-quality-gate-v2"
 MEASUREMENT_CONTRACT_VERSION = "measurement-v1"
 CONTENT_REVIEW_PATHS = (
     "intake.json",
@@ -109,6 +109,9 @@ EDITORIAL_QUALITY_CHECKS = {
     "journey_and_conversion",
 }
 QUALITY_FORMATS = {"guide", "comparison", "how-to", "list", "category", "opinion", "other"}
+COMPETITIVE_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input", "reader-tool", "none"}
+EMPIRICAL_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input"}
+ORIGINAL_EVIDENCE_SOURCE_TYPES = {"primary", "first-party", "user-provided"}
 PAGE_FILTER_FIELDS = {
     "page", "search_type", "query", "country", "device", "device_category",
     "channel", "source", "medium", "campaign", "event_name", "content_group",
@@ -1910,14 +1913,16 @@ def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[d
         "contract_version",
         "run_id",
         "operating_depth",
+        "competitive_standard",
         "serp_assessment",
         "reader_path",
         "article_shape",
         "information_gain",
+        "reader_advantage",
         "visual_data_decision",
     }
     if set(payload) != required:
-        findings.append(finding("QUALITY_GATE_FIELDS_INVALID", "P1", "Quality gate fields do not match article-quality-gate-v1"))
+        findings.append(finding("QUALITY_GATE_FIELDS_INVALID", "P1", "Quality gate fields do not match article-quality-gate-v2"))
     if payload.get("contract_version") != QUALITY_GATE_VERSION or payload.get("run_id") != manifest.get("run_id"):
         findings.append(finding("QUALITY_GATE_IDENTITY_INVALID", "P1", "Quality gate does not bind to this run and contract version"))
 
@@ -1975,6 +1980,24 @@ def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[d
 
     headings = draft_heading_labels(root)
     all_claim_ids, _ = claim_scope_ids(root / "claims.jsonl")
+    source_types: dict[str, str] = {}
+    sources_path = root / "research/sources.jsonl"
+    if sources_path.is_file() and not path_uses_symlink(root, sources_path):
+        for raw in sources_path.read_text(encoding="utf-8").splitlines():
+            if not raw.strip():
+                continue
+            try:
+                source = strict_json_loads(raw)
+            except ValueError:
+                continue
+            if isinstance(source, dict) and valid_identifier(source.get("source_id")) and isinstance(source.get("source_type"), str):
+                source_types[source["source_id"]] = source["source_type"]
+
+    competitive_standard = payload.get("competitive_standard")
+    if competitive_standard not in {"standard", "serp-competitive"}:
+        findings.append(finding("QUALITY_COMPETITIVE_STANDARD_INVALID", "P1", "competitive_standard must be standard or serp-competitive"))
+    elif depth == "full" and competitive_standard != "serp-competitive":
+        findings.append(finding("QUALITY_FULL_COMPETITIVE_STANDARD_REQUIRED", "P1", "Full work must use the serp-competitive standard or be reduced to Lite scope"))
 
     reader_path = payload.get("reader_path")
     expected_reader_path = {"primary_job", "direct_answer_heading", "decision_criteria", "not_for_reader"}
@@ -2054,6 +2077,52 @@ def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[d
             heading = item.get("article_heading")
             if not substantive_string(heading) or " ".join(heading.casefold().split()) not in headings:
                 findings.append(finding("QUALITY_INFORMATION_GAIN_HEADING_MISSING", "P1", "Information gain must point to a real final-draft heading", index=index, heading=heading))
+
+    advantage = payload.get("reader_advantage")
+    expected_advantage = {"status", "kind", "reader_problem", "article_heading", "method", "evidence_source_ids", "claim_ids", "limitation"}
+    if not isinstance(advantage, dict) or set(advantage) != expected_advantage:
+        findings.append(finding("QUALITY_READER_ADVANTAGE_INVALID", "P1", "Quality gate must describe the reader advantage and its evidence"))
+        advantage = {}
+    advantage_status = advantage.get("status")
+    advantage_kind = advantage.get("kind")
+    if advantage_status not in {"demonstrated", "not-demonstrated"}:
+        findings.append(finding("QUALITY_READER_ADVANTAGE_STATUS_INVALID", "P1", "reader_advantage.status must be demonstrated or not-demonstrated"))
+    if advantage_kind not in COMPETITIVE_ADVANTAGE_KINDS:
+        findings.append(finding("QUALITY_READER_ADVANTAGE_KIND_INVALID", "P1", "reader_advantage.kind is unsupported"))
+    if not substantive_evidence(advantage.get("reader_problem")) or not substantive_evidence(advantage.get("limitation")):
+        findings.append(finding("QUALITY_READER_ADVANTAGE_CONTEXT_INVALID", "P1", "reader_advantage needs a substantive reader problem and limitation"))
+    advantage_heading = advantage.get("article_heading")
+    if not substantive_string(advantage_heading) or " ".join(advantage_heading.casefold().split()) not in headings:
+        findings.append(finding("QUALITY_READER_ADVANTAGE_HEADING_MISSING", "P1", "reader_advantage must point to a real final-draft heading", heading=advantage_heading))
+    source_ids = advantage.get("evidence_source_ids")
+    claim_ids = advantage.get("claim_ids")
+    source_ids_valid = isinstance(source_ids, list) and all(valid_identifier(item) for item in source_ids) and len(source_ids) == len(set(source_ids))
+    claim_ids_valid = isinstance(claim_ids, list) and all(valid_identifier(item) for item in claim_ids) and len(claim_ids) == len(set(claim_ids))
+    if not source_ids_valid or not claim_ids_valid:
+        findings.append(finding("QUALITY_READER_ADVANTAGE_REFERENCES_INVALID", "P1", "reader_advantage source and claim IDs must be unique valid identifiers"))
+
+    demonstrated = advantage_status == "demonstrated"
+    if demonstrated:
+        if advantage_kind == "none":
+            findings.append(finding("QUALITY_READER_ADVANTAGE_CONTRADICTION", "P1", "A demonstrated reader advantage cannot use kind none"))
+        if not substantive_evidence(advantage.get("method")):
+            findings.append(finding("QUALITY_READER_ADVANTAGE_METHOD_INVALID", "P1", "A demonstrated reader advantage needs a reproducible method or provenance statement"))
+        if not source_ids or not claim_ids or not set(source_ids).issubset(source_types) or not set(claim_ids).issubset(all_claim_ids):
+            findings.append(finding("QUALITY_READER_ADVANTAGE_EVIDENCE_INVALID", "P1", "A demonstrated reader advantage must bind existing sources and claims"))
+        if advantage_kind in EMPIRICAL_ADVANTAGE_KINDS:
+            unsupported_sources = sorted(source_id for source_id in source_ids or [] if source_types.get(source_id) not in ORIGINAL_EVIDENCE_SOURCE_TYPES)
+            if unsupported_sources:
+                findings.append(finding("QUALITY_READER_ADVANTAGE_SOURCE_INVALID", "P1", "Original tests, data, or expert input require primary, first-party, or user-provided evidence", source_ids=unsupported_sources))
+        if article_format == "comparison" and advantage_kind == "reader-tool":
+            findings.append(finding("QUALITY_COMPARISON_EMPIRICAL_ADVANTAGE_REQUIRED", "P1", "A SERP-competitive comparison needs original test, data, or expert input; a generic decision tool alone is insufficient"))
+    else:
+        if advantage_kind != "none" or source_ids or claim_ids or substantive_evidence(advantage.get("method")):
+            findings.append(finding("QUALITY_READER_ADVANTAGE_CONTRADICTION", "P1", "A non-demonstrated reader advantage must use kind none with empty evidence and method"))
+
+    if competitive_standard == "serp-competitive" and not demonstrated:
+        findings.append(finding("QUALITY_COMPETITIVE_ADVANTAGE_REQUIRED", "P1", "A SERP-competitive article needs demonstrated reader value beyond a sourced summary"))
+    if competitive_standard == "serp-competitive" and article_format == "comparison" and advantage_kind not in EMPIRICAL_ADVANTAGE_KINDS:
+        findings.append(finding("QUALITY_COMPARISON_EMPIRICAL_ADVANTAGE_REQUIRED", "P1", "A SERP-competitive comparison needs original test, data, or expert input tied to the decision"))
 
     visual = payload.get("visual_data_decision")
     expected_visual = {"decision", "rationale", "article_headings"}

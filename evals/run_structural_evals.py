@@ -207,9 +207,10 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
     write_json(
         root / "research/quality-gate.json",
         {
-            "contract_version": "article-quality-gate-v1",
+            "contract_version": "article-quality-gate-v2",
             "run_id": manifest["run_id"],
             "operating_depth": "lite",
+            "competitive_standard": "standard",
             "serp_assessment": {
                 "status": "adequate",
                 "relevant_results": [
@@ -260,6 +261,16 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
                         "evidence_basis": "The source ledger and claim ledger expose the evidence path.",
                     }
                 ]
+            },
+            "reader_advantage": {
+                "status": "not-demonstrated",
+                "kind": "none",
+                "reader_problem": "This bounded fixture demonstrates a standard evidence-led guide, not a page intended to compete on original research.",
+                "article_heading": "Evidence",
+                "method": "",
+                "evidence_source_ids": [],
+                "claim_ids": [],
+                "limitation": "No original research, product test, expert input, or reader tool was collected for this Lite fixture.",
             },
             "visual_data_decision": {
                 "decision": "none",
@@ -634,6 +645,119 @@ class StructuralEvals(unittest.TestCase):
         code, report = self.run_in_temp(builder)
         self.assertEqual(code, 1)
         self.assertTrue(any(item["code"] == "QUALITY_SERP_COVERAGE_INSUFFICIENT" for item in report["findings"]), report)
+
+    def test_full_article_requires_a_demonstrated_reader_advantage(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            serp_path = root / "research/serp.json"
+            serp = json.loads(serp_path.read_text(encoding="utf-8"))
+            gate_path = root / "research/quality-gate.json"
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            base_result = gate["serp_assessment"]["relevant_results"][0]
+            for index in range(2, 6):
+                url = f"https://example.test/serp-{index}"
+                serp["results"].append({"url": url, "opened": True})
+                gate["serp_assessment"]["relevant_results"].append(
+                    {
+                        **base_result,
+                        "url": url,
+                        "position": index,
+                        "gap": f"Observed gap {index}: the source summary does not contain original reader evidence.",
+                    }
+                )
+            gate["operating_depth"] = "full"
+            gate["competitive_standard"] = "serp-competitive"
+            gate["article_shape"]["format"] = "comparison"
+            gate["reader_path"]["decision_criteria"].append(
+                {
+                    "criterion": "Compare the documented workflow observation.",
+                    "reader_consequence": "The reader can see whether the test protocol addresses the decision they need to make.",
+                    "evidence_basis": "The test protocol is recorded separately from the generic source summary.",
+                    "claim_ids": ["C1"],
+                }
+            )
+            write_json(serp_path, serp)
+            write_json(gate_path, gate)
+            refresh_content_reviews(root)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        hard_codes = {item["code"] for item in report["findings"] if item["severity"] in {"P0", "P1"}}
+        self.assertIn("QUALITY_COMPETITIVE_ADVANTAGE_REQUIRED", hard_codes, report)
+        self.assertIn("QUALITY_COMPARISON_EMPIRICAL_ADVANTAGE_REQUIRED", hard_codes, report)
+
+    def test_full_competitive_comparison_accepts_bound_original_test(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            serp_path = root / "research/serp.json"
+            serp = json.loads(serp_path.read_text(encoding="utf-8"))
+            gate_path = root / "research/quality-gate.json"
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            base_result = gate["serp_assessment"]["relevant_results"][0]
+            for index in range(2, 6):
+                url = f"https://example.test/serp-{index}"
+                serp["results"].append({"url": url, "opened": True})
+                gate["serp_assessment"]["relevant_results"].append(
+                    {
+                        **base_result,
+                        "url": url,
+                        "position": index,
+                        "gap": f"Observed gap {index}: it does not disclose the controlled test protocol.",
+                    }
+                )
+            source = json.loads((root / "research/sources.jsonl").read_text(encoding="utf-8"))
+            source_test = {
+                **source,
+                "source_id": "S2",
+                "title": "Controlled workflow test log",
+                "locator": "https://example.test/evidence/workflow-test",
+                "publisher": "Example editorial team",
+                "source_type": "user-provided",
+                "supported_claim_ids": ["C2"],
+                "notes": "A dated user-provided test log retained the setup, procedure, observations, and limitations for this comparison.",
+            }
+            claim = json.loads((root / "claims.jsonl").read_text(encoding="utf-8"))
+            claim_test = {
+                **claim,
+                "claim_id": "C2",
+                "text": "The controlled workflow test recorded the documented setup and result for the comparison decision.",
+                "location": "Protocol section",
+                "source_ids": ["S2"],
+                "exact_support": "The test log records the tested setup, procedure, observed result, and stated limitation.",
+            }
+            write_jsonl(root / "research/sources.jsonl", [source, source_test])
+            write_jsonl(root / "claims.jsonl", [claim, claim_test])
+            write_text(
+                root / "drafts/final.md",
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n\n## Protocol\n\nThe controlled workflow test recorded the documented setup and result for the comparison decision.\n",
+            )
+            gate["operating_depth"] = "full"
+            gate["competitive_standard"] = "serp-competitive"
+            gate["article_shape"]["format"] = "comparison"
+            gate["reader_path"]["decision_criteria"].append(
+                {
+                    "criterion": "Compare the controlled workflow observation.",
+                    "reader_consequence": "The reader can assess whether the test addresses the workflow that drives their choice.",
+                    "evidence_basis": "The user-provided test log documents the setup and observed result for this specific decision.",
+                    "claim_ids": ["C2"],
+                }
+            )
+            gate["reader_advantage"] = {
+                "status": "demonstrated",
+                "kind": "original-test",
+                "reader_problem": "Readers need a documented workflow observation, not a generic feature summary, to make the comparison decision.",
+                "article_heading": "Protocol",
+                "method": "The supplied log records the date, setup, procedure, observed result, and limitation for the same workflow decision.",
+                "evidence_source_ids": ["S2"],
+                "claim_ids": ["C2"],
+                "limitation": "This is one bounded workflow test and does not establish universal performance or reliability.",
+            }
+            write_json(serp_path, serp)
+            write_json(gate_path, gate)
+            refresh_content_reviews(root)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 0, report)
 
     def test_editorial_review_requires_all_reader_value_checks(self):
         def builder(root: Path) -> None:

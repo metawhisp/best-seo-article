@@ -1,18 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:best-seo-article:schema:article-quality-gate-v1",
+  "$id": "urn:best-seo-article:schema:article-quality-gate-v2",
   "title": "Best SEO Article quality gate",
   "type": "object",
   "additionalProperties": false,
-  "required": ["contract_version", "run_id", "operating_depth", "serp_assessment", "reader_path", "article_shape", "information_gain", "visual_data_decision"],
+  "required": ["contract_version", "run_id", "operating_depth", "competitive_standard", "serp_assessment", "reader_path", "article_shape", "information_gain", "reader_advantage", "visual_data_decision"],
   "properties": {
-    "contract_version": {"const": "article-quality-gate-v1"},
+    "contract_version": {"const": "article-quality-gate-v2"},
     "run_id": {"type": "string", "minLength": 8, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"},
     "operating_depth": {"enum": ["lite", "full"]},
+    "competitive_standard": {"enum": ["standard", "serp-competitive"]},
     "serp_assessment": {"$ref": "#/$defs/serpAssessment"},
     "reader_path": {"$ref": "#/$defs/readerPath"},
     "article_shape": {"$ref": "#/$defs/articleShape"},
     "information_gain": {"$ref": "#/$defs/informationGain"},
+    "reader_advantage": {"$ref": "#/$defs/readerAdvantage"},
     "visual_data_decision": {"$ref": "#/$defs/visualDecision"}
   },
   "$defs": {
@@ -104,6 +106,21 @@
         "reader_outcome": {"$ref": "#/$defs/text"},
         "article_heading": {"$ref": "#/$defs/text"},
         "evidence_basis": {"$ref": "#/$defs/text"}
+      }
+    },
+    "readerAdvantage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "kind", "reader_problem", "article_heading", "method", "evidence_source_ids", "claim_ids", "limitation"],
+      "properties": {
+        "status": {"enum": ["demonstrated", "not-demonstrated"]},
+        "kind": {"enum": ["original-test", "original-data", "expert-input", "reader-tool", "none"]},
+        "reader_problem": {"$ref": "#/$defs/text"},
+        "article_heading": {"$ref": "#/$defs/text"},
+        "method": {"type": "string"},
+        "evidence_source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"}},
+        "claim_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"}},
+        "limitation": {"$ref": "#/$defs/text"}
       }
     },
     "visualDecision": {

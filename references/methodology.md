@@ -16,6 +16,29 @@ claim-level support, no invented experience, a distinct answer, and a human
 editorial verdict. Full is required when a missing artifact could change the
 recommendation, safety, conversion, or publication decision.
 
+## Competitive standard: do not confuse a sourced summary with a SERP contender
+
+Use `competitive_standard: serp-competitive` for Full work. It means the page
+must give the reader something decision-relevant that the opened SERP does not
+already provide as a generic summary. It does **not** mean that a ranking,
+traffic outcome, or a fixed word count is guaranteed.
+
+The quality gate records this as `reader_advantage`. One of these evidence paths
+is required:
+
+| Advantage | What must be recorded | Suitable use |
+|---|---|---|
+| `original-test` | Protocol, date, setup, results, limitations, source/claim IDs, and a visible article section | A product, workflow, tool, or migration comparison where hands-on behaviour changes the choice. |
+| `original-data` | Dataset or export, collection method, scope, calculations, limitations, source/claim IDs, and a visible article section | A benchmark, survey, usage analysis, or audited first-party result. |
+| `expert-input` | Named qualified input, scope, date, disclosure/permission, limitations, source/claim IDs, and a visible article section | A consequential or specialist decision where an expert can add real judgment. |
+| `reader-tool` | A usable, bounded decision aid with inputs, steps, outputs, limitations, and a visible article section | A guide or how-to. It cannot be the only advantage in a competitive comparison. |
+
+For a comparison, an empirical advantage (`original-test`, `original-data`, or
+`expert-input`) is mandatory. A vendor-feature table, a rewritten competitor
+outline, and a generic "try both" checklist do not qualify. If that evidence is
+not available, write a clearly scoped standard comparison or stop at
+`needs-evidence`; do not call it a competitive article.
+
 ## 2. Start with the minimum useful input
 
 Do not hold a normal article hostage for a perfect brief. Record unknowns and
@@ -77,7 +100,9 @@ Then write these five conclusions in plain language:
 3. **Minimum answer:** the question a good page must answer first.
 4. **Real information gain:** an auditable improvement such as an official
    source path, a disclosed first-party method, a decision tree, a tested setup,
-   a useful boundary, or a missing reader constraint.
+   a useful boundary, or a missing reader constraint. For Full competitive work,
+   record the specific `reader_advantage` described above; a source list alone
+   is not sufficient.
 5. **No-go condition:** what would make this page a duplicate, a weak rewrite,
    or a claim we cannot support.
 
