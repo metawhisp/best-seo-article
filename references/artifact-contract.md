@@ -12,6 +12,7 @@ article-run/
 │   └── snapshot.json
 ├── research/
 │   ├── serp.json
+│   ├── quality-gate.json
 │   ├── query-decision.md
 │   ├── intent-gap.md
 │   ├── source-plan.md
@@ -54,7 +55,7 @@ article-run/
 | `draft-only` | `manifest.json`, `intake.json`, `drafts/final.md` |
 | `needs-evidence` | Draft requirements plus `claims.jsonl`, `research/sources.jsonl` |
 | `needs-expert-review` | Content-ready artifacts except an approved YMYL review; `reviews/ymyl.json` records the missing gate |
-| `content-ready` | Draft requirements plus `capabilities.json`, `opportunity.md`, `brief.md`, `outline.md`, `research/serp.json`, `research/query-decision.md`, `research/intent-gap.md`, `research/source-plan.md`, source and claim ledgers, bound `reviews/verification.json`, bound `reviews/editorial.json`, and human-readable `reviews/editorial.md` notes |
+| `content-ready` | Draft requirements plus `capabilities.json`, `opportunity.md`, `brief.md`, `outline.md`, `research/serp.json`, `research/quality-gate.json`, `research/query-decision.md`, `research/intent-gap.md`, `research/source-plan.md`, source and claim ledgers, bound `reviews/verification.json`, bound `reviews/editorial.json`, human-readable `reviews/editorial.md` notes, and a `handoff.md` whose `Status:` exactly matches the manifest |
 | `publish-package-ready` | Content-ready artifacts plus `publish/article.*`, metadata, schema decision, publish manifest, and technical review |
 | `published-pending-verification` | Package requirements plus explicit publish permission, destination URL, and publish receipt/event |
 | `verified-live` | Published requirements plus `reviews/live-verification.json` with URL, retrieval time, HTTP, rendered-content, canonical, indexability, schema, link, and asset results |
@@ -89,12 +90,12 @@ The exact required bindings are:
 
 | Review | Required current artifact hashes |
 |---|---|
-| Verification | `intake.json`, `drafts/final.md`, `claims.jsonl`, `research/sources.jsonl` |
-| Editorial | `intake.json`, `drafts/final.md`, `claims.jsonl`, `research/sources.jsonl` |
-| Pending YMYL request | The same intake plus three content artifacts, with `requested_at` |
-| Approved YMYL at `content-ready` | The same intake plus three content artifacts |
-| Approved YMYL at `publish-package-ready` or above | The intake and three content artifacts plus `publish/publish-manifest.json` |
-| Technical | The intake and three content artifacts plus `publish/publish-manifest.json` |
+| Verification | `intake.json`, `drafts/final.md`, `claims.jsonl`, `research/sources.jsonl`, `research/quality-gate.json` |
+| Editorial | `intake.json`, `drafts/final.md`, `claims.jsonl`, `research/sources.jsonl`, `research/quality-gate.json` |
+| Pending YMYL request | The same intake plus four content artifacts, with `requested_at` |
+| Approved YMYL at `content-ready` | The same intake plus four content artifacts |
+| Approved YMYL at `publish-package-ready` or above | The intake and four content artifacts plus `publish/publish-manifest.json` |
+| Technical | The intake and four content artifacts plus `publish/publish-manifest.json` |
 
 The hash map must contain exactly the paths required for that review stage.
 If any bound byte changes, regenerate downstream package checksums and obtain a

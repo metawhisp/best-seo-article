@@ -47,11 +47,12 @@ editorial verdicts use `review-binding-v1` JSON records:
 
 Use `review_type: "verification"` and the verifier role for the independent
 claim pass. The required hash map contains exactly the current intake plus the
-three content artifacts. `reviews/editorial.json` is the machine-verifiable editorial verdict;
+four content artifacts: final draft, claim ledger, source ledger, and
+`research/quality-gate.json`. `reviews/editorial.json` is the machine-verifiable editorial verdict;
 `reviews/editorial.md` is the human-readable rationale, findings, and repair
 history. Notes alone do not approve the article.
 
-Any edit to the intake, draft, or either ledger invalidates both content approvals.
+Any edit to the intake, draft, either ledger, or quality gate invalidates both content approvals.
 Repair the affected material, rerun verification and editorial review in
 lifecycle order, and record new hashes and timestamps. A SHA-256 match proves
 only that the record points to the same bytes. It does not authenticate the
@@ -120,7 +121,7 @@ waivable. Open P2/P3 items are allowed only as visible limitations.
 3. **Intent and answer quality:** compare the draft with the brief's user job and acceptance criteria.
 4. **Editorial quality:** review clarity, organization, voice, originality, examples, and conversion fit; preserve rationale in `reviews/editorial.md`.
 5. **SEO quality:** review search-intent alignment, page differentiation, internal journey, metadata accuracy, and cannibalization risk.
-6. **Editorial verdict:** write `reviews/editorial.json` after verification, binding it to the same current draft and ledgers.
+6. **Editorial verdict:** write `reviews/editorial.json` after verification, binding it to the same current draft, ledgers, and quality gate. It must contain passed, evidence-bearing checks for `answer_and_intent`, `truth_and_boundaries`, `information_gain`, `practical_utility`, `clarity_and_voice`, and `journey_and_conversion`, plus `independence_degraded: true|false`.
 7. **Destination quality:** validate the actual target format, links, assets, canonical, accessibility, and structured data when applicable.
 8. **Mode preservation:** inspect the semantic diff for rewrite or refresh work.
 9. **Final verdict:** assign the highest honest status and list every unresolved warning or pending live check.

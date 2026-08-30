@@ -91,8 +91,24 @@ CAPABILITY_ORDER = ("serp", "keywords", "gsc", "ga4", "crawl", "cwv", "fact_chec
 CAPABILITY_NAMES = set(CAPABILITY_ORDER)
 CAPABILITY_STATES = {"AVAILABLE", "USER_EXPORT", "FALLBACK", "UNAVAILABLE"}
 REVIEW_BINDING_VERSION = "review-binding-v1"
+QUALITY_GATE_VERSION = "article-quality-gate-v1"
 MEASUREMENT_CONTRACT_VERSION = "measurement-v1"
-CONTENT_REVIEW_PATHS = ("intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl")
+CONTENT_REVIEW_PATHS = (
+    "intake.json",
+    "drafts/final.md",
+    "claims.jsonl",
+    "research/sources.jsonl",
+    "research/quality-gate.json",
+)
+EDITORIAL_QUALITY_CHECKS = {
+    "answer_and_intent",
+    "truth_and_boundaries",
+    "information_gain",
+    "practical_utility",
+    "clarity_and_voice",
+    "journey_and_conversion",
+}
+QUALITY_FORMATS = {"guide", "comparison", "how-to", "list", "category", "opinion", "other"}
 PAGE_FILTER_FIELDS = {
     "page", "search_type", "query", "country", "device", "device_category",
     "channel", "source", "medium", "campaign", "event_name", "content_group",
@@ -1863,6 +1879,232 @@ def validate_serp(path: Path, findings: list[dict[str, Any]], *, web_research_al
             findings.append(finding("SERP_RESULT_NOT_OPENED", "P1", "SERP result was not opened and inspected", index=index, opened=result.get("opened")))
 
 
+def draft_heading_labels(root: Path) -> set[str]:
+    """Return reader-visible Markdown headings from the final draft."""
+
+    draft = root / "drafts/final.md"
+    if not draft.is_file() or path_uses_symlink(root, draft):
+        return set()
+    labels: set[str] = set()
+    inspected = strip_code_for_mdx(draft.read_text(encoding="utf-8"))
+    for line in inspected.splitlines():
+        match = re.match(r"^[ ]{0,3}#{1,6}[ \t]+(.+?)[ \t]*#*[ \t]*$", line)
+        if match:
+            label = normalized_heading_text(match.group(1))
+            if label:
+                labels.add(label)
+    return labels
+
+
+def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[dict[str, Any]]) -> None:
+    """Require a reviewable reader-value assessment before content-ready status.
+
+    This intentionally validates the *evidence shape*, not a universal writing
+    score. The independent editor remains responsible for judging usefulness.
+    """
+
+    payload = read_json(root / "research/quality-gate.json", findings, "QUALITY_GATE")
+    if not isinstance(payload, dict):
+        return
+    required = {
+        "contract_version",
+        "run_id",
+        "operating_depth",
+        "serp_assessment",
+        "reader_path",
+        "article_shape",
+        "information_gain",
+        "visual_data_decision",
+    }
+    if set(payload) != required:
+        findings.append(finding("QUALITY_GATE_FIELDS_INVALID", "P1", "Quality gate fields do not match article-quality-gate-v1"))
+    if payload.get("contract_version") != QUALITY_GATE_VERSION or payload.get("run_id") != manifest.get("run_id"):
+        findings.append(finding("QUALITY_GATE_IDENTITY_INVALID", "P1", "Quality gate does not bind to this run and contract version"))
+
+    depth = payload.get("operating_depth")
+    if depth not in {"lite", "full"}:
+        findings.append(finding("QUALITY_GATE_DEPTH_INVALID", "P1", "operating_depth must be lite or full"))
+
+    serp = payload.get("serp_assessment")
+    expected_serp = {"status", "relevant_results", "limitation"}
+    if not isinstance(serp, dict) or set(serp) != expected_serp:
+        findings.append(finding("QUALITY_SERP_ASSESSMENT_INVALID", "P1", "Quality gate must record SERP status, relevant results, and limitation"))
+        serp = {}
+    serp_status = serp.get("status")
+    relevant_results = serp.get("relevant_results")
+    if serp_status not in {"adequate", "sparse"}:
+        findings.append(finding("QUALITY_SERP_STATUS_INVALID", "P1", "SERP assessment status must be adequate or sparse"))
+    if not substantive_evidence(serp.get("limitation")):
+        findings.append(finding("QUALITY_SERP_LIMITATION_INVALID", "P1", "SERP assessment must state a substantive evidence limitation"))
+    if not isinstance(relevant_results, list) or not relevant_results:
+        findings.append(finding("QUALITY_SERP_RESULTS_INVALID", "P1", "Quality gate requires at least one opened relevant SERP result"))
+        relevant_results = []
+
+    serp_payload = quiet_json_object(root / "research/serp.json")
+    opened_urls = {
+        result.get("url")
+        for result in (serp_payload or {}).get("results", [])
+        if isinstance(result, dict) and result.get("opened") is True and isinstance(result.get("url"), str)
+    }
+    seen_urls: set[str] = set()
+    seen_positions: set[int] = set()
+    expected_result = {"url", "position", "format", "reader_job", "main_content_words", "word_count_method", "gap"}
+    for index, result in enumerate(relevant_results):
+        if not isinstance(result, dict) or set(result) != expected_result:
+            findings.append(finding("QUALITY_SERP_RESULT_INVALID", "P1", "Each quality SERP result must contain the required comparable observations", index=index))
+            continue
+        url = result.get("url")
+        position = result.get("position")
+        if not valid_http_url(url) or url not in opened_urls or url in seen_urls:
+            findings.append(finding("QUALITY_SERP_RESULT_URL_INVALID", "P1", "Quality SERP results must reference unique opened snapshot URLs", index=index, url=url))
+        if isinstance(url, str):
+            seen_urls.add(url)
+        if isinstance(position, bool) or not isinstance(position, int) or position < 1 or position in seen_positions:
+            findings.append(finding("QUALITY_SERP_RESULT_POSITION_INVALID", "P1", "Quality SERP positions must be unique positive integers", index=index, position=position))
+        elif isinstance(position, int):
+            seen_positions.add(position)
+        if isinstance(result.get("main_content_words"), bool) or not isinstance(result.get("main_content_words"), int) or result.get("main_content_words") < 1:
+            findings.append(finding("QUALITY_SERP_RESULT_LENGTH_INVALID", "P1", "Each quality SERP result needs a positive main-content word count", index=index))
+        for field in ("format", "reader_job", "word_count_method", "gap"):
+            if not substantive_evidence(result.get(field)):
+                findings.append(finding("QUALITY_SERP_RESULT_OBSERVATION_INVALID", "P1", "Each quality SERP result needs substantive format, reader-job, length-method, and gap observations", index=index, field=field))
+    if depth == "full" and len(relevant_results) < 5:
+        findings.append(finding("QUALITY_SERP_COVERAGE_INSUFFICIENT", "P1", "Full articles require five or more opened relevant SERP pages or a lower delivery status", observed=len(relevant_results)))
+    if depth == "full" and serp_status != "adequate":
+        findings.append(finding("QUALITY_SERP_COVERAGE_SPARSE", "P1", "A Full article with sparse SERP coverage remains draft-only until broader relevant research is captured"))
+
+    headings = draft_heading_labels(root)
+    all_claim_ids, _ = claim_scope_ids(root / "claims.jsonl")
+
+    reader_path = payload.get("reader_path")
+    expected_reader_path = {"primary_job", "direct_answer_heading", "decision_criteria", "not_for_reader"}
+    if not isinstance(reader_path, dict) or set(reader_path) != expected_reader_path:
+        findings.append(finding("QUALITY_READER_PATH_INVALID", "P1", "Quality gate must define the reader job, direct answer, criteria, and exclusions"))
+        reader_path = {}
+    if not substantive_evidence(reader_path.get("primary_job")):
+        findings.append(finding("QUALITY_READER_JOB_INVALID", "P1", "Quality gate primary_job must be substantive"))
+    answer_heading = reader_path.get("direct_answer_heading")
+    if not substantive_string(answer_heading) or " ".join(answer_heading.casefold().split()) not in headings:
+        findings.append(finding("QUALITY_DIRECT_ANSWER_MISSING", "P1", "Quality gate direct answer must point to a real final-draft heading", heading=answer_heading))
+    criteria = reader_path.get("decision_criteria")
+    if not isinstance(criteria, list) or not criteria:
+        findings.append(finding("QUALITY_DECISION_CRITERIA_INVALID", "P1", "Quality gate requires one or more decision criteria"))
+        criteria = []
+    article_shape = payload.get("article_shape")
+    expected_shape = {"format", "sections", "word_count", "word_count_method", "serp_length_context"}
+    if not isinstance(article_shape, dict) or set(article_shape) != expected_shape:
+        findings.append(finding("QUALITY_ARTICLE_SHAPE_INVALID", "P1", "Quality gate must record the article format, sections, and contextual length evidence"))
+        article_shape = {}
+    article_format = article_shape.get("format")
+    if article_format not in QUALITY_FORMATS:
+        findings.append(finding("QUALITY_ARTICLE_FORMAT_INVALID", "P1", "Quality gate article format is unsupported"))
+    if article_format == "comparison" and len(criteria) < 2:
+        findings.append(finding("QUALITY_COMPARISON_CRITERIA_INSUFFICIENT", "P1", "A comparison requires at least two reader decision criteria"))
+    for index, criterion in enumerate(criteria):
+        expected_criterion = {"criterion", "reader_consequence", "evidence_basis", "claim_ids"}
+        if not isinstance(criterion, dict) or set(criterion) != expected_criterion:
+            findings.append(finding("QUALITY_DECISION_CRITERION_INVALID", "P1", "Decision criteria require criterion, consequence, evidence basis, and claim IDs", index=index))
+            continue
+        for field in ("criterion", "reader_consequence", "evidence_basis"):
+            if not substantive_evidence(criterion.get(field)):
+                findings.append(finding("QUALITY_DECISION_CRITERION_INVALID", "P1", "Decision criterion observation is not substantive", index=index, field=field))
+        claim_ids = criterion.get("claim_ids")
+        if not isinstance(claim_ids, list) or not claim_ids or any(not valid_identifier(item) for item in claim_ids) or not set(claim_ids).issubset(all_claim_ids):
+            findings.append(finding("QUALITY_DECISION_CRITERION_CLAIMS_INVALID", "P1", "Decision criteria must cite existing claim IDs", index=index))
+    exclusions = reader_path.get("not_for_reader")
+    if not isinstance(exclusions, list) or not exclusions or any(not substantive_evidence(item) for item in exclusions):
+        findings.append(finding("QUALITY_READER_EXCLUSIONS_INVALID", "P1", "Quality gate must name substantive not-for-reader cases"))
+
+    sections = article_shape.get("sections")
+    if not isinstance(sections, list) or not sections:
+        findings.append(finding("QUALITY_SECTION_COVERAGE_INVALID", "P1", "Quality gate must map material sections to reader needs and evidence"))
+        sections = []
+    for index, section in enumerate(sections):
+        expected_section = {"reader_need", "heading", "evidence_basis", "claim_ids"}
+        if not isinstance(section, dict) or set(section) != expected_section:
+            findings.append(finding("QUALITY_SECTION_INVALID", "P1", "Each quality section must map reader need, heading, evidence basis, and claims", index=index))
+            continue
+        for field in ("reader_need", "evidence_basis"):
+            if not substantive_evidence(section.get(field)):
+                findings.append(finding("QUALITY_SECTION_INVALID", "P1", "Section mapping is not substantive", index=index, field=field))
+        heading = section.get("heading")
+        if not substantive_string(heading) or " ".join(heading.casefold().split()) not in headings:
+            findings.append(finding("QUALITY_SECTION_HEADING_MISSING", "P1", "Section mapping must point to a real final-draft heading", index=index, heading=heading))
+        claim_ids = section.get("claim_ids")
+        if not isinstance(claim_ids, list) or not claim_ids or any(not valid_identifier(item) for item in claim_ids) or not set(claim_ids).issubset(all_claim_ids):
+            findings.append(finding("QUALITY_SECTION_CLAIMS_INVALID", "P1", "Section mappings must cite existing claim IDs", index=index))
+    word_count = article_shape.get("word_count")
+    if isinstance(word_count, bool) or not isinstance(word_count, int) or word_count < 1:
+        findings.append(finding("QUALITY_ARTICLE_LENGTH_INVALID", "P1", "Quality gate requires a positive observed article word count"))
+    for field in ("word_count_method", "serp_length_context"):
+        if not substantive_evidence(article_shape.get(field)):
+            findings.append(finding("QUALITY_ARTICLE_LENGTH_CONTEXT_INVALID", "P1", "Quality gate must explain article-length evidence without a fixed word-count target", field=field))
+
+    information_gain = payload.get("information_gain")
+    if not isinstance(information_gain, dict) or set(information_gain) != {"items"} or not isinstance(information_gain.get("items"), list) or not information_gain.get("items"):
+        findings.append(finding("QUALITY_INFORMATION_GAIN_INVALID", "P1", "Quality gate requires one or more concrete information-gain items"))
+    else:
+        for index, item in enumerate(information_gain["items"]):
+            expected_item = {"reader_outcome", "article_heading", "evidence_basis"}
+            if not isinstance(item, dict) or set(item) != expected_item:
+                findings.append(finding("QUALITY_INFORMATION_GAIN_ITEM_INVALID", "P1", "Information-gain items must name outcome, heading, and evidence basis", index=index))
+                continue
+            if not all(substantive_evidence(item.get(field)) for field in ("reader_outcome", "evidence_basis")):
+                findings.append(finding("QUALITY_INFORMATION_GAIN_ITEM_INVALID", "P1", "Information-gain item is not substantive", index=index))
+            heading = item.get("article_heading")
+            if not substantive_string(heading) or " ".join(heading.casefold().split()) not in headings:
+                findings.append(finding("QUALITY_INFORMATION_GAIN_HEADING_MISSING", "P1", "Information gain must point to a real final-draft heading", index=index, heading=heading))
+
+    visual = payload.get("visual_data_decision")
+    expected_visual = {"decision", "rationale", "article_headings"}
+    if not isinstance(visual, dict) or set(visual) != expected_visual:
+        findings.append(finding("QUALITY_VISUAL_DECISION_INVALID", "P1", "Quality gate must record whether visual or data media helps the reader"))
+        visual = {}
+    if visual.get("decision") not in {"none", "table", "screenshot", "chart", "diagram", "mixed"}:
+        findings.append(finding("QUALITY_VISUAL_DECISION_INVALID", "P1", "Visual/data decision is unsupported"))
+    if not substantive_evidence(visual.get("rationale")):
+        findings.append(finding("QUALITY_VISUAL_RATIONALE_INVALID", "P1", "Visual/data decision needs a substantive rationale"))
+    visual_headings = visual.get("article_headings")
+    if not isinstance(visual_headings, list) or not visual_headings or any(not isinstance(item, str) or " ".join(item.casefold().split()) not in headings for item in visual_headings):
+        findings.append(finding("QUALITY_VISUAL_HEADINGS_INVALID", "P1", "Visual/data decision must point to one or more real final-draft headings"))
+
+
+def validate_handoff(root: Path, manifest: dict[str, Any], findings: list[dict[str, Any]]) -> None:
+    """Keep the human handoff's delivery status synchronized with the manifest."""
+
+    handoff = require_file(root, "handoff.md", findings)
+    if handoff is None:
+        return
+    try:
+        lines = handoff.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return
+    status_line = next((line.strip() for line in lines if line.strip().casefold().startswith("status:")), None)
+    if status_line is None:
+        findings.append(finding("HANDOFF_STATUS_MISSING", "P1", "Handoff must contain a Status: line"))
+        return
+    stated = status_line.split(":", 1)[1].strip()
+    if stated != manifest.get("actual_status"):
+        findings.append(finding("HANDOFF_STATUS_MISMATCH", "P1", "Handoff status must exactly match manifest.actual_status", handoff_status=stated, actual_status=manifest.get("actual_status")))
+
+
+def validate_editorial_quality_checks(editorial: dict[str, Any], findings: list[dict[str, Any]]) -> None:
+    """Require the editor to assess reader value, not merely state a pass."""
+
+    checks = editorial.get("checks")
+    if not isinstance(checks, dict):
+        findings.append(finding("EDITORIAL_QUALITY_CHECKS_INCOMPLETE", "P1", "Editorial review must record all six reader-value checks"))
+        return
+    normalized = {normalized_check_name(name): value for name, value in checks.items()}
+    missing = sorted(EDITORIAL_QUALITY_CHECKS - set(normalized))
+    if missing:
+        findings.append(finding("EDITORIAL_QUALITY_CHECKS_INCOMPLETE", "P1", "Editorial review is missing required reader-value checks", checks=missing))
+    for name in EDITORIAL_QUALITY_CHECKS & set(normalized):
+        check = normalized[name]
+        if not isinstance(check, dict) or check.get("status") != "passed" or not substantive_evidence(check.get("evidence"), 20):
+            findings.append(finding("EDITORIAL_QUALITY_CHECK_INVALID", "P1", "Editorial reader-value checks require a passed outcome and substantive evidence", check=name))
+
+
 def validate_source_acquisition_permissions(path: Path, web_research_allowed: bool, findings: list[dict[str, Any]]) -> None:
     """Enforce the web-research permission against each source acquisition."""
 
@@ -3271,14 +3513,14 @@ def validate_reserved_artifact_nodes(root: Path, findings: list[dict[str, Any]])
     """Reject symlinked or special-file substitutions for contract artifacts at every status."""
 
     reserved_files = (
-        "manifest.json", "intake.json", "capabilities.json", "research/serp.json",
+        "manifest.json", "intake.json", "capabilities.json", "research/serp.json", "research/quality-gate.json",
         "research/sources.jsonl", "claims.jsonl", "drafts/final.md",
         "reviews/verification.json", "reviews/editorial.json", "reviews/ymyl.json",
         "reviews/technical.json", "reviews/live-verification.json",
         "publish/article.md", "publish/article.mdx", "publish/article.html",
         "publish/metadata.json", "publish/schema.json", "publish/publish-manifest.json",
         "publish/publish-receipt.json", "media-manifest.json", "dataset-manifest.json",
-        "measurement/baseline.json", "measurement/decisions.md",
+        "measurement/baseline.json", "measurement/decisions.md", "handoff.md",
     )
     for relative in reserved_files:
         path = root / relative
@@ -3420,7 +3662,7 @@ def main() -> int:
         required_roles = ("writer", "verifier", "editor")
         if not isinstance(roles, dict) or any(not substantive_actor_identity(roles.get(role)) for role in required_roles):
             findings.append(finding("ROLE_ASSIGNMENTS_INVALID", "P1", "Content-ready work requires non-empty writer, verifier, and editor role identities"))
-        for relative in ("capabilities.json", "opportunity.md", "brief.md", "outline.md", "research/serp.json", "research/query-decision.md", "research/intent-gap.md", "research/source-plan.md", "research/sources.jsonl", "claims.jsonl", "reviews/verification.json", "reviews/editorial.md"):
+        for relative in ("capabilities.json", "opportunity.md", "brief.md", "outline.md", "research/serp.json", "research/quality-gate.json", "research/query-decision.md", "research/intent-gap.md", "research/source-plan.md", "research/sources.jsonl", "claims.jsonl", "reviews/verification.json", "reviews/editorial.md", "handoff.md"):
             artifact = require_file(root, relative, findings)
             if artifact and artifact.suffix == ".md":
                 artifact_text = artifact.read_text(encoding="utf-8")
@@ -3428,6 +3670,8 @@ def main() -> int:
                     findings.append(finding("CONTENT_ARTIFACT_PLACEHOLDER", "P1", "Content-ready artifact contains an unresolved placeholder", path=relative))
                 if not substantive_string(artifact_text) or contains_forbidden_document_control(artifact_text):
                     findings.append(finding("CONTENT_ARTIFACT_NOT_SUBSTANTIVE", "P1", "Content-ready text artifact lacks substantive visible content or contains forbidden Unicode controls", path=relative))
+        validate_quality_gate(root, manifest, findings)
+        validate_handoff(root, manifest, findings)
         verification = read_json(root / "reviews/verification.json", findings, "VERIFICATION")
         if isinstance(verification, dict):
             if verification.get("status") != "passed":
@@ -3487,6 +3731,13 @@ def main() -> int:
                 review_type="editorial",
                 required_paths=CONTENT_REVIEW_PATHS,
             )
+            if "independence_degraded" not in editorial:
+                findings.append(finding("EDITORIAL_INDEPENDENCE_STATE_MISSING", "P1", "Editorial review must state whether reviewer independence was degraded"))
+            elif editorial.get("independence_degraded") is True:
+                findings.append(finding("EDITORIAL_INDEPENDENCE_DEGRADED", "P2", "Editorial review used an isolated pass rather than a genuinely separate reviewer"))
+            elif editorial.get("independence_degraded") is not False:
+                findings.append(finding("EDITORIAL_INDEPENDENCE_STATE_INVALID", "P1", "editorial independence_degraded must be a boolean"))
+            validate_editorial_quality_checks(editorial, findings)
         code, payload = child_validator(Path(__file__).with_name("validate_claims.py"), root)
         child_reports.append(payload)
         if code == 2:

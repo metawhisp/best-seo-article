@@ -38,6 +38,7 @@ from run_structural_evals import (  # noqa: E402
     build_measured,
     build_publish_package,
     rehash_publish,
+    sync_handoff_status,
     sync_intake_authorization,
     validate,
     write_json,
@@ -60,7 +61,7 @@ def after_run(hours: int) -> str:
 
 
 def content_artifact_hashes(root: Path, *, include_package: bool = False) -> dict[str, str]:
-    paths = ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl"]
+    paths = ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl", "research/quality-gate.json"]
     if include_package:
         paths.append("publish/publish-manifest.json")
     return {relative: sha256_file(root / relative) for relative in paths}
@@ -536,6 +537,7 @@ class ReleaseContractRegressions(unittest.TestCase):
             manifest["requested_status"] = "needs-expert-review"
             write_json(root / "manifest.json", manifest)
             sync_intake_authorization(root, manifest)
+            sync_handoff_status(root, manifest)
             write_json(
                 root / "reviews/ymyl.json",
                 {

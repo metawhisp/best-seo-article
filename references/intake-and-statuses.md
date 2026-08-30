@@ -36,7 +36,7 @@ other.
 | Condition | Default depth | Minimum additional work |
 |---|---|---|
 | One bounded, low-risk informational reader job with no comparison, proprietary result, high-stakes advice, or large site decision | Lite | A dated SERP, selected-query decision, intent-gap note, source plan, ledgers, and independent editorial review. |
-| Comparison, commercial investigation, pillar, linkable asset, first-party proof, substantial rewrite, multi-intent page, or high-cost decision | Full | Lite work plus broader site-overlap review, a deeper competitor matrix, source snapshots where load-bearing, internal-link plan, and visual/data decision. |
+| Comparison, commercial investigation, pillar, linkable asset, first-party proof, substantial rewrite, multi-intent page, or high-cost decision | Full | Lite work plus broader site-overlap review, a deeper competitor matrix of at least five relevant opened pages, source snapshots where load-bearing, internal-link plan, and visual/data decision. |
 | Medical, legal, tax, finance, investment, insurance, safety-critical, or other consequential content | Full | The applicable qualified reviewer and jurisdiction are mandatory. |
 
 Do not choose Lite merely because a paid provider is unavailable. Missing

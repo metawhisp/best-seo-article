@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:best-seo-article:schema:article-quality-gate-v1",
+  "title": "Best SEO Article quality gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "run_id", "operating_depth", "serp_assessment", "reader_path", "article_shape", "information_gain", "visual_data_decision"],
+  "properties": {
+    "contract_version": {"const": "article-quality-gate-v1"},
+    "run_id": {"type": "string", "minLength": 8, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"},
+    "operating_depth": {"enum": ["lite", "full"]},
+    "serp_assessment": {"$ref": "#/$defs/serpAssessment"},
+    "reader_path": {"$ref": "#/$defs/readerPath"},
+    "article_shape": {"$ref": "#/$defs/articleShape"},
+    "information_gain": {"$ref": "#/$defs/informationGain"},
+    "visual_data_decision": {"$ref": "#/$defs/visualDecision"}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 3, "pattern": "\\S"},
+    "claimIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"}},
+    "serpAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "relevant_results", "limitation"],
+      "properties": {
+        "status": {"enum": ["adequate", "sparse"]},
+        "limitation": {"$ref": "#/$defs/text"},
+        "relevant_results": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["url", "position", "format", "reader_job", "main_content_words", "word_count_method", "gap"],
+            "properties": {
+              "url": {"type": "string", "format": "uri", "pattern": "^https?://"},
+              "position": {"type": "integer", "minimum": 1},
+              "format": {"$ref": "#/$defs/text"},
+              "reader_job": {"$ref": "#/$defs/text"},
+              "main_content_words": {"type": "integer", "minimum": 1},
+              "word_count_method": {"$ref": "#/$defs/text"},
+              "gap": {"$ref": "#/$defs/text"}
+            }
+          }
+        }
+      }
+    },
+    "readerPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_job", "direct_answer_heading", "decision_criteria", "not_for_reader"],
+      "properties": {
+        "primary_job": {"$ref": "#/$defs/text"},
+        "direct_answer_heading": {"$ref": "#/$defs/text"},
+        "not_for_reader": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+        "decision_criteria": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/decisionCriterion"}}
+      }
+    },
+    "decisionCriterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterion", "reader_consequence", "evidence_basis", "claim_ids"],
+      "properties": {
+        "criterion": {"$ref": "#/$defs/text"},
+        "reader_consequence": {"$ref": "#/$defs/text"},
+        "evidence_basis": {"$ref": "#/$defs/text"},
+        "claim_ids": {"$ref": "#/$defs/claimIds"}
+      }
+    },
+    "articleShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "sections", "word_count", "word_count_method", "serp_length_context"],
+      "properties": {
+        "format": {"enum": ["guide", "comparison", "how-to", "list", "category", "opinion", "other"]},
+        "word_count": {"type": "integer", "minimum": 1},
+        "word_count_method": {"$ref": "#/$defs/text"},
+        "serp_length_context": {"$ref": "#/$defs/text"},
+        "sections": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/section"}}
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reader_need", "heading", "evidence_basis", "claim_ids"],
+      "properties": {
+        "reader_need": {"$ref": "#/$defs/text"},
+        "heading": {"$ref": "#/$defs/text"},
+        "evidence_basis": {"$ref": "#/$defs/text"},
+        "claim_ids": {"$ref": "#/$defs/claimIds"}
+      }
+    },
+    "informationGain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {"items": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/informationGainItem"}}}
+    },
+    "informationGainItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reader_outcome", "article_heading", "evidence_basis"],
+      "properties": {
+        "reader_outcome": {"$ref": "#/$defs/text"},
+        "article_heading": {"$ref": "#/$defs/text"},
+        "evidence_basis": {"$ref": "#/$defs/text"}
+      }
+    },
+    "visualDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "rationale", "article_headings"],
+      "properties": {
+        "decision": {"enum": ["none", "table", "screenshot", "chart", "diagram", "mixed"]},
+        "rationale": {"$ref": "#/$defs/text"},
+        "article_headings": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+      }
+    }
+  }
+}

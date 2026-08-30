@@ -19,6 +19,12 @@ matches the request.
 - Current SERP research is kept separate from factual sources.
 - Query choice, search intent, competitor gap, and source plan are recorded as
   reviewable decisions rather than inferred from a keyword score.
+- `content-ready` requires an article-quality gate: opened relevant SERP pages
+  with observed format/length/gaps, a mapped reader path, information gain,
+  an evidence-backed content shape, and a reasoned visual/data decision.
+- A passed editorial review must assess intent, truth, information gain,
+  utility, clarity, and conversion; a handoff cannot disagree with the run's
+  actual status.
 - Material claims have a source and a verification trail.
 - Keyword volume, difficulty, pricing, product capabilities, reviews, and
   publication state are never invented.

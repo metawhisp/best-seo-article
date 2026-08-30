@@ -81,14 +81,15 @@
     },
     "artifact_hashes": {
       "type": "object",
-      "minProperties": 4,
-      "maxProperties": 5,
+      "minProperties": 5,
+      "maxProperties": 6,
       "propertyNames": {
         "enum": [
           "drafts/final.md",
           "intake.json",
           "claims.jsonl",
           "research/sources.jsonl",
+          "research/quality-gate.json",
           "publish/publish-manifest.json"
         ]
       },
@@ -102,9 +103,9 @@
         "properties": {
           "status": {"const": "passed"},
           "artifact_hashes": {
-            "minProperties": 4,
-            "maxProperties": 4,
-            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl"]
+            "minProperties": 5,
+            "maxProperties": 5,
+            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl", "research/quality-gate.json"]
           }
         }
       }
@@ -148,9 +149,9 @@
             ]
           },
           "artifact_hashes": {
-            "minProperties": 5,
-            "maxProperties": 5,
-            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl", "publish/publish-manifest.json"]
+            "minProperties": 6,
+            "maxProperties": 6,
+            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl", "research/quality-gate.json", "publish/publish-manifest.json"]
           }
         }
       }
@@ -161,7 +162,7 @@
         "properties": {
           "status": {"enum": ["approved", "pending", "needs-changes", "rejected"]},
           "artifact_hashes": {
-            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl"]
+            "required": ["intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl", "research/quality-gate.json"]
           }
         }
       }

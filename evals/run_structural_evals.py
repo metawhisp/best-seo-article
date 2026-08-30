@@ -34,7 +34,13 @@ LIVE_AT = iso(_RUN_CREATED + timedelta(days=1, minutes=5))
 SNAPSHOT_AT = iso(_TEST_CURRENT)
 REVIEW_BINDING_VERSION = "review-binding-v1"
 MEASUREMENT_CONTRACT_VERSION = "measurement-v1"
-CONTENT_REVIEW_PATHS = ("intake.json", "drafts/final.md", "claims.jsonl", "research/sources.jsonl")
+CONTENT_REVIEW_PATHS = (
+    "intake.json",
+    "drafts/final.md",
+    "claims.jsonl",
+    "research/sources.jsonl",
+    "research/quality-gate.json",
+)
 
 
 def write_json(path: Path, payload: object) -> None:
@@ -118,6 +124,10 @@ def sync_intake_authorization(root: Path, manifest: dict[str, object]) -> None:
     refresh_content_reviews(root)
 
 
+def sync_handoff_status(root: Path, manifest: dict[str, object]) -> None:
+    write_text(root / "handoff.md", f"# Handoff\n\nStatus: {manifest['actual_status']}\n")
+
+
 def base_manifest(mode: str = "new", status: str = "content-ready") -> dict[str, object]:
     return {
         "schema_version": "0.1",
@@ -194,6 +204,70 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
             "results": [{"url": "https://developers.google.com/search/docs", "opened": True}],
         },
     )
+    write_json(
+        root / "research/quality-gate.json",
+        {
+            "contract_version": "article-quality-gate-v1",
+            "run_id": manifest["run_id"],
+            "operating_depth": "lite",
+            "serp_assessment": {
+                "status": "adequate",
+                "relevant_results": [
+                    {
+                        "url": "https://developers.google.com/search/docs",
+                        "position": 1,
+                        "format": "Official documentation that explains evidence-led content practices.",
+                        "reader_job": "Understand how to publish useful, evidence-led content.",
+                        "main_content_words": 800,
+                        "word_count_method": "Visible main reader-facing prose, excluding navigation and footer.",
+                        "gap": "It explains policy but does not give an editor a complete article decision workflow.",
+                    }
+                ],
+                "limitation": "This Lite fixture uses one official page because it represents a bounded informational reader job.",
+            },
+            "reader_path": {
+                "primary_job": "Help editors decide how to build a defensible evidence-led article.",
+                "direct_answer_heading": "Evidence",
+                "decision_criteria": [
+                    {
+                        "criterion": "Material claims need source-backed evidence.",
+                        "reader_consequence": "Editors can remove unsupported promises before publication.",
+                        "evidence_basis": "The official guidance is the source for the retained material claim.",
+                        "claim_ids": ["C1"],
+                    }
+                ],
+                "not_for_reader": ["This short fixture is not a substitute for a qualified review of consequential advice."],
+            },
+            "article_shape": {
+                "format": "guide",
+                "sections": [
+                    {
+                        "reader_need": "Know the non-negotiable evidence rule.",
+                        "heading": "Evidence",
+                        "evidence_basis": "The section contains the verified material claim from the source ledger.",
+                        "claim_ids": ["C1"],
+                    }
+                ],
+                "word_count": 11,
+                "word_count_method": "Whitespace-delimited visible reader-facing prose excluding metadata.",
+                "serp_length_context": "The fixture is intentionally shorter than a real guide; length is recorded, never used as a quality target.",
+            },
+            "information_gain": {
+                "items": [
+                    {
+                        "reader_outcome": "The editor receives one clear boundary for retaining a factual claim.",
+                        "article_heading": "Evidence",
+                        "evidence_basis": "The source ledger and claim ledger expose the evidence path.",
+                    }
+                ]
+            },
+            "visual_data_decision": {
+                "decision": "none",
+                "rationale": "A visual would not reduce work for this one-claim fixture.",
+                "article_headings": ["Evidence"],
+            },
+        },
+    )
     source = {
         "source_id": "S1",
         "title": "Official documentation",
@@ -237,7 +311,8 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
     write_text(root / "outline.md", "# Outline\n\n## Evidence\n\nMaps to C1.\n")
     final = "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n"
     write_text(root / "drafts/final.md", final)
-    write_text(root / "reviews/editorial.md", "# Editorial review\n\nPassed for clarity, intent, and evidence boundaries.\n")
+    write_text(root / "reviews/editorial.md", "# Editorial review\n\nThe fixture is clear, bounded, and source-led.\n")
+    sync_handoff_status(root, manifest)
     if mode in {"rewrite", "refresh"}:
         write_text(root / "baseline/original.md", "# How evidence-led content works\n\n## Evidence\n\nOld but useful section with [documentation](https://developers.google.com/search/docs).\n")
         write_json(root / "baseline/snapshot.json", {"captured_at": NOW, "status": "captured"})
@@ -268,9 +343,14 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
             root,
             "editorial",
             "editor-pass",
+            independence_degraded=False,
             checks={
-                "intent": {"status": "passed", "evidence": "The draft answers the documented reader job."},
-                "clarity": {"status": "passed", "evidence": "The draft uses a direct evidence-led structure."},
+                "answer_and_intent": {"status": "passed", "evidence": "The Evidence heading gives the exact answer required by the documented reader job."},
+                "truth_and_boundaries": {"status": "passed", "evidence": "The only factual statement maps to C1 and does not claim an unmeasured result."},
+                "information_gain": {"status": "passed", "evidence": "The reader receives a source-backed boundary for retaining material claims."},
+                "practical_utility": {"status": "passed", "evidence": "An editor can use the stated evidence rule before publishing the next article."},
+                "clarity_and_voice": {"status": "passed", "evidence": "The fixture uses one direct heading and one plain-language source-led statement."},
+                "journey_and_conversion": {"status": "passed", "evidence": "The bounded fixture has no product CTA and does not pressure the reader into an unsupported action."},
             },
             findings=[],
         ),
@@ -284,6 +364,7 @@ def build_publish_package(root: Path) -> dict[str, object]:
     manifest["requested_status"] = "publish-package-ready"
     write_json(root / "manifest.json", manifest)
     sync_intake_authorization(root, manifest)
+    sync_handoff_status(root, manifest)
     article = (root / "drafts/final.md").read_text(encoding="utf-8")
     write_text(root / "publish/article.md", article)
     write_json(root / "publish/metadata.json", {"title": "How evidence-led content works", "description": "A practical evidence-led content workflow.", "slug": "evidence-led-content", "canonical": None})
@@ -334,6 +415,7 @@ def build_measured(root: Path) -> dict[str, object]:
     manifest["updated_at"] = MEASURED_UPDATED_AT
     write_json(root / "manifest.json", manifest)
     sync_intake_authorization(root, manifest)
+    sync_handoff_status(root, manifest)
     baseline_export = root / "measurement/evidence/gsc-baseline.csv"
     snapshot_export = root / "measurement/evidence/gsc-snapshot.csv"
     write_text(
@@ -531,6 +613,48 @@ class StructuralEvals(unittest.TestCase):
     def test_new_content_ready_passes(self):
         code, report = self.run_in_temp(lambda root: build_content_ready(root, "new"))
         self.assertEqual(code, 0, report)
+
+    def test_content_ready_requires_quality_gate(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            (root / "research/quality-gate.json").unlink()
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        self.assertTrue(any(item["code"] == "QUALITY_GATE_MISSING" for item in report["findings"]), report)
+
+    def test_full_article_requires_deeper_serp_coverage(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            gate = json.loads((root / "research/quality-gate.json").read_text(encoding="utf-8"))
+            gate["operating_depth"] = "full"
+            write_json(root / "research/quality-gate.json", gate)
+            refresh_content_reviews(root)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        self.assertTrue(any(item["code"] == "QUALITY_SERP_COVERAGE_INSUFFICIENT" for item in report["findings"]), report)
+
+    def test_editorial_review_requires_all_reader_value_checks(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            path = root / "reviews/editorial.json"
+            review = json.loads(path.read_text(encoding="utf-8"))
+            review["checks"].pop("information_gain")
+            write_json(path, review)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        self.assertTrue(any(item["code"] == "EDITORIAL_QUALITY_CHECKS_INCOMPLETE" for item in report["findings"]), report)
+
+    def test_handoff_status_cannot_contradict_manifest(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            write_text(root / "handoff.md", "# Handoff\n\nStatus: draft-only\n")
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        self.assertTrue(any(item["code"] == "HANDOFF_STATUS_MISMATCH" for item in report["findings"]), report)
 
     def test_unverified_load_bearing_claim_fails(self):
         def builder(root: Path) -> None:

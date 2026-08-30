@@ -198,6 +198,19 @@ def main() -> int:
     write_json(root / "intake.json", intake)
     capability_args = build_capability_parser().parse_args(["--checked-at", now])
     write_json(root / "capabilities.json", build_capability_report(capability_args, {}))
+    write_json(
+        root / "research/quality-gate.json",
+        {
+            "contract_version": "article-quality-gate-v1",
+            "run_id": run_id,
+            "operating_depth": None,
+            "serp_assessment": None,
+            "reader_path": None,
+            "article_shape": None,
+            "information_gain": None,
+            "visual_data_decision": None,
+        },
+    )
     write_text(root / "research/sources.jsonl")
     write_text(root / "research/query-decision.md", "# Query decision\n\n[NEEDS RESEARCH]\n")
     write_text(root / "research/intent-gap.md", "# Intent and gap\n\n[NEEDS RESEARCH]\n")

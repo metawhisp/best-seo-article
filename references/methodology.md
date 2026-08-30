@@ -60,7 +60,8 @@ it with observed facts.
 Create `research/intent-gap.md` from a dated SERP snapshot. Record query,
 locale, device, date, result features, and at least the leading relevant pages
 that were actually opened. Lite normally opens enough results to establish a
-stable pattern; Full normally compares five or more relevant opened results.
+stable pattern; Full requires five or more relevant opened results before the
+article can become `content-ready`.
 
 For each opened competitor, capture only observations needed for the decision:
 
@@ -83,6 +84,14 @@ Then write these five conclusions in plain language:
 More sections, a different adjective, or repeating a competitor's advice is
 not information gain. A competitor is evidence of search intent and coverage,
 not a source for factual product claims and never a template to paraphrase.
+
+Before approval, create `research/quality-gate.json`. For every relevant SERP
+page it records the URL, observed position, format, reader job, main-content
+word count and method, and a concrete gap. It also records the target article's
+reader path, decision criteria, mapped headings/claims, observed word count
+and SERP-length context, information gain, and a reasoned visual/data choice.
+This is evidence for editorial judgment, not a fixed word-count target or an
+automatic quality score.
 
 ## 5. Plan evidence and first-party proof
 
@@ -181,10 +190,12 @@ do not convert this into an automatic aggregate score.
 | Clarity and voice | Is it readable, specific, original, and appropriate for the verified brand voice? |
 | Journey and conversion | Do internal links and CTA follow naturally after value, without bait, pressure, or invented promises? |
 
-`content-ready` requires no unresolved P0/P1 issue. An editor may accept an
-open P2/P3 limitation only if it is explicit in the handoff. A rubric cannot
-override an unsupported claim, missing qualified review, broken package, or
-missing publication permission.
+`content-ready` requires a passed, bound review for all six dimensions and no
+unresolved P0/P1 issue. The reviewer must state whether independence was
+degraded; an isolated pass is a disclosed limitation, not independent approval.
+An editor may accept an open P2/P3 limitation only if it is explicit in the
+handoff. A rubric cannot override an unsupported claim, missing qualified
+review, broken package, or missing publication permission.
 
 ## 10. Learn after publication, not before it
 
