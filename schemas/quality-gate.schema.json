@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:best-seo-article:schema:article-quality-gate-v2",
+  "$id": "urn:best-seo-article:schema:article-quality-gate-v3",
   "title": "Best SEO Article quality gate",
   "type": "object",
   "additionalProperties": false,
-  "required": ["contract_version", "run_id", "operating_depth", "competitive_standard", "serp_assessment", "reader_path", "article_shape", "information_gain", "reader_advantage", "visual_data_decision"],
+  "required": ["contract_version", "run_id", "operating_depth", "competitive_standard", "serp_assessment", "reader_path", "article_shape", "information_gain", "reader_advantage", "visual_data_decision", "iteration_assessment"],
   "properties": {
-    "contract_version": {"const": "article-quality-gate-v2"},
+    "contract_version": {"const": "article-quality-gate-v3"},
     "run_id": {"type": "string", "minLength": 8, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"},
     "operating_depth": {"enum": ["lite", "full"]},
     "competitive_standard": {"enum": ["standard", "serp-competitive"]},
@@ -15,10 +15,12 @@
     "article_shape": {"$ref": "#/$defs/articleShape"},
     "information_gain": {"$ref": "#/$defs/informationGain"},
     "reader_advantage": {"$ref": "#/$defs/readerAdvantage"},
-    "visual_data_decision": {"$ref": "#/$defs/visualDecision"}
+    "visual_data_decision": {"$ref": "#/$defs/visualDecision"},
+    "iteration_assessment": {"$ref": "#/$defs/iterationAssessment"}
   },
   "$defs": {
     "text": {"type": "string", "minLength": 3, "pattern": "\\S"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "claimIds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"}},
     "serpAssessment": {
       "type": "object",
@@ -131,6 +133,53 @@
         "decision": {"enum": ["none", "table", "screenshot", "chart", "diagram", "mixed"]},
         "rationale": {"$ref": "#/$defs/text"},
         "article_headings": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+      }
+    },
+    "iterationAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "baseline_path", "baseline_sha256", "report_path", "report_sha256", "dimensions", "unresolved_regressions", "humanization", "next_action"],
+      "properties": {
+        "status": {"enum": ["compared", "not-required"]},
+        "baseline_path": {"type": ["string", "null"]},
+        "baseline_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "report_path": {"type": ["string", "null"]},
+        "report_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "dimensions": {"type": "array", "items": {"$ref": "#/$defs/iterationDimension"}},
+        "unresolved_regressions": {"type": "array", "items": {"$ref": "#/$defs/iterationRegression"}},
+        "humanization": {"$ref": "#/$defs/humanization"},
+        "next_action": {"$ref": "#/$defs/text"}
+      }
+    },
+    "iterationDimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimension", "outcome", "evidence"],
+      "properties": {
+        "dimension": {"enum": ["intent_and_coverage", "truth_and_evidence", "reader_utility", "clarity_and_voice"]},
+        "outcome": {"enum": ["improved", "unchanged", "regressed", "not-applicable"]},
+        "evidence": {"$ref": "#/$defs/text"}
+      }
+    },
+    "iterationRegression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "description", "next_action"],
+      "properties": {
+        "severity": {"enum": ["P0", "P1", "P2", "P3"]},
+        "description": {"$ref": "#/$defs/text"},
+        "next_action": {"$ref": "#/$defs/text"}
+      }
+    },
+    "humanization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "scope", "meaning_preserved", "claim_review_rerun"],
+      "properties": {
+        "status": {"enum": ["applied", "reviewed-no-change"]},
+        "scope": {"$ref": "#/$defs/text"},
+        "meaning_preserved": {"const": true},
+        "claim_review_rerun": {"const": true}
       }
     }
   }

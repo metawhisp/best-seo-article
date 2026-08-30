@@ -235,7 +235,27 @@ is better than an unverified visual. Data visuals require the dataset manifest;
 product screenshots require a real capture and permission; generated media must
 not impersonate product UI, results, people, or testimonials.
 
-## 9. Review with a human rubric, then bind the verdict
+## 9. Improve once, compare the result, then humanize without changing facts
+
+For Full work, retain the first complete evidence-led draft at
+`drafts/baseline.md`. Make one bounded revision that resolves the most material
+observed gap in intent, evidence, reader utility, or clarity. Do not broaden
+the article into a second query or page type merely to increase coverage.
+
+Run a humanization pass only after the content repair. The pass may simplify
+formulaic phrasing, vary sentence rhythm, remove filler, and improve the
+verified brand voice. It must not alter a factual proposition, source meaning,
+claim classification, qualification, citation, disclosure, or reader-facing
+decision boundary. Rerun factual verification after any prose change.
+
+Write `research/iteration-report.md` and bind it in the quality gate. Compare
+the baseline and final draft on intent and coverage, truth and evidence, reader
+utility, and clarity and voice. Record concrete improvements, unchanged areas,
+regressions, and the next smallest evidence-backed action. A Full
+`content-ready` run must not retain an unresolved P0/P1 regression. Read
+`iteration-loop.md` for the exact artifact and stopping rules.
+
+## 10. Review with a human rubric, then bind the verdict
 
 The independent editorial reviewer records a short rationale for each dimension
 in `reviews/editorial.md` and writes the bound JSON decision only after the
@@ -258,7 +278,7 @@ An editor may accept an open P2/P3 limitation only if it is explicit in the
 handoff. A rubric cannot override an unsupported claim, missing qualified
 review, broken package, or missing publication permission.
 
-## 10. Learn after publication, not before it
+## 11. Learn after publication, not before it
 
 Only an explicitly authorised publication may move beyond a content package.
 Verify the live page separately. If GSC, analytics, or rank data is available,

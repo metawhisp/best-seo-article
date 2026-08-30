@@ -109,6 +109,40 @@ def refresh_content_reviews(root: Path) -> None:
     refresh_review_binding(root, "reviews/editorial.json")
 
 
+def bind_full_iteration(root: Path, gate: dict[str, object], baseline: str) -> None:
+    """Create the minimum evidence-bearing Full iteration packet for a fixture."""
+
+    write_text(root / "drafts/baseline.md", baseline)
+    report = (
+        "# Iteration report\n\n"
+        "The final draft retains the verified evidence statement and adds a bounded decision section. "
+        "The new section improves reader utility without claiming a measured performance outcome. "
+        "No P0 or P1 regression remains.\n"
+    )
+    write_text(root / "research/iteration-report.md", report)
+    gate["iteration_assessment"] = {
+        "status": "compared",
+        "baseline_path": "drafts/baseline.md",
+        "baseline_sha256": sha256_file(root / "drafts/baseline.md"),
+        "report_path": "research/iteration-report.md",
+        "report_sha256": sha256_file(root / "research/iteration-report.md"),
+        "dimensions": [
+            {"dimension": "intent_and_coverage", "outcome": "improved", "evidence": "The final draft adds the selected reader decision without changing page type."},
+            {"dimension": "truth_and_evidence", "outcome": "unchanged", "evidence": "The retained factual statement still maps to the same official source and claim ledger."},
+            {"dimension": "reader_utility", "outcome": "improved", "evidence": "The final draft makes the documented constraint actionable through a bounded decision framework."},
+            {"dimension": "clarity_and_voice", "outcome": "improved", "evidence": "The final prose removes generic framing and keeps the direct reader-facing decision."},
+        ],
+        "unresolved_regressions": [],
+        "humanization": {
+            "status": "applied",
+            "scope": "A final plain-language pass removed formulaic framing without changing the factual claim, source meaning, or qualification.",
+            "meaning_preserved": True,
+            "claim_review_rerun": True,
+        },
+        "next_action": "Run the independent claim and editorial reviews against the final bound artifacts.",
+    }
+
+
 def sync_intake_authorization(root: Path, manifest: dict[str, object]) -> None:
     """Record the current user-authorized ceiling and refresh bound reviews."""
 
@@ -207,7 +241,7 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
     write_json(
         root / "research/quality-gate.json",
         {
-            "contract_version": "article-quality-gate-v2",
+            "contract_version": "article-quality-gate-v3",
             "run_id": manifest["run_id"],
             "operating_depth": "lite",
             "competitive_standard": "standard",
@@ -276,6 +310,22 @@ def build_content_ready(root: Path, mode: str = "new") -> dict[str, object]:
                 "decision": "none",
                 "rationale": "A visual would not reduce work for this one-claim fixture.",
                 "article_headings": ["Evidence"],
+            },
+            "iteration_assessment": {
+                "status": "not-required",
+                "baseline_path": None,
+                "baseline_sha256": None,
+                "report_path": None,
+                "report_sha256": None,
+                "dimensions": [],
+                "unresolved_regressions": [],
+                "humanization": {
+                    "status": "reviewed-no-change",
+                    "scope": "The short evidence statement was reviewed for formulaic language; changing it would not improve the bounded fixture.",
+                    "meaning_preserved": True,
+                    "claim_review_rerun": True,
+                },
+                "next_action": "Proceed to the independent reviews; this Lite fixture does not require a baseline-to-final comparison.",
             },
         },
     )
@@ -729,6 +779,11 @@ class StructuralEvals(unittest.TestCase):
                 "claim_ids": ["C1"],
                 "limitation": "The framework selects a first evaluation; it does not prove accuracy, latency, privacy, reliability, or compatibility outcomes.",
             }
+            bind_full_iteration(
+                root,
+                gate,
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n",
+            )
             write_json(serp_path, serp)
             write_json(gate_path, gate)
             refresh_content_reviews(root)
@@ -802,12 +857,61 @@ class StructuralEvals(unittest.TestCase):
                 "claim_ids": ["C2"],
                 "limitation": "This is one bounded workflow test and does not establish universal performance or reliability.",
             }
+            bind_full_iteration(
+                root,
+                gate,
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n",
+            )
             write_json(serp_path, serp)
             write_json(gate_path, gate)
             refresh_content_reviews(root)
 
         code, report = self.run_in_temp(builder)
         self.assertEqual(code, 0, report)
+
+    def test_iteration_requires_the_bound_baseline_bytes(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            gate_path = root / "research/quality-gate.json"
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            write_text(
+                root / "drafts/final.md",
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n\n## Decision\n\nUse evidence before retaining a material claim.\n",
+            )
+            bind_full_iteration(
+                root,
+                gate,
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n",
+            )
+            gate["iteration_assessment"]["baseline_sha256"] = "0" * 64
+            write_json(gate_path, gate)
+            refresh_content_reviews(root)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        self.assertTrue(any(item["code"] == "QUALITY_ITERATION_BASELINE_BINDING_INVALID" for item in report["findings"]), report)
+
+    def test_iteration_requires_a_fact_safe_humanization_review(self):
+        def builder(root: Path) -> None:
+            build_content_ready(root)
+            gate_path = root / "research/quality-gate.json"
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            write_text(
+                root / "drafts/final.md",
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n\n## Decision\n\nUse evidence before retaining a material claim.\n",
+            )
+            bind_full_iteration(
+                root,
+                gate,
+                "# How evidence-led content works\n\n## Evidence\n\nSearch documentation recommends evidence-led, useful content.\n",
+            )
+            gate["iteration_assessment"]["humanization"]["claim_review_rerun"] = False
+            write_json(gate_path, gate)
+            refresh_content_reviews(root)
+
+        code, report = self.run_in_temp(builder)
+        self.assertEqual(code, 1)
+        self.assertTrue(any(item["code"] == "QUALITY_HUMANIZATION_REVIEW_INCOMPLETE" for item in report["findings"]), report)
 
     def test_editorial_review_requires_all_reader_value_checks(self):
         def builder(root: Path) -> None:

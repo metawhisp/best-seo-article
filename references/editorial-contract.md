@@ -141,6 +141,16 @@ content reviews; and all completed review times are covered by
 
 The orchestrator owns a bounded revision loop. Route each failed gate back to the role able to fix it, then rerun affected downstream checks. Do not let sub-skills create independent retry loops.
 
+For Full work, the loop starts from a preserved `drafts/baseline.md` and ends
+with a quality-gate-bound `research/iteration-report.md`. The report compares
+baseline and final across intent/coverage, truth/evidence, reader utility, and
+clarity/voice; it names both improvements and regressions. The last prose pass
+may use an available humanization capability, but it is an editorial operation:
+facts, citations, qualifiers, disclosures, and claim boundaries remain intact,
+then verification and editorial review rerun against the final bytes. A claim
+that the draft "sounds human" is neither an editorial verdict nor a substitute
+for this comparison.
+
 Stop and assign the applicable lower status (`blocked`, `draft-only`, `needs-evidence`, or `needs-expert-review`) when:
 
 - The same material defect remains without new evidence or a safe correction.

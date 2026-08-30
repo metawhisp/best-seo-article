@@ -91,7 +91,7 @@ CAPABILITY_ORDER = ("serp", "keywords", "gsc", "ga4", "crawl", "cwv", "fact_chec
 CAPABILITY_NAMES = set(CAPABILITY_ORDER)
 CAPABILITY_STATES = {"AVAILABLE", "USER_EXPORT", "FALLBACK", "UNAVAILABLE"}
 REVIEW_BINDING_VERSION = "review-binding-v1"
-QUALITY_GATE_VERSION = "article-quality-gate-v2"
+QUALITY_GATE_VERSION = "article-quality-gate-v3"
 MEASUREMENT_CONTRACT_VERSION = "measurement-v1"
 CONTENT_REVIEW_PATHS = (
     "intake.json",
@@ -112,6 +112,7 @@ QUALITY_FORMATS = {"guide", "comparison", "how-to", "list", "category", "opinion
 COMPETITIVE_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input", "decision-framework", "serp-synthesis", "none"}
 EMPIRICAL_ADVANTAGE_KINDS = {"original-test", "original-data", "expert-input"}
 ORIGINAL_EVIDENCE_SOURCE_TYPES = {"primary", "first-party", "user-provided"}
+ITERATION_DIMENSIONS = {"intent_and_coverage", "truth_and_evidence", "reader_utility", "clarity_and_voice"}
 PAGE_FILTER_FIELDS = {
     "page", "search_type", "query", "country", "device", "device_category",
     "channel", "source", "medium", "campaign", "event_name", "content_group",
@@ -1920,9 +1921,10 @@ def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[d
         "information_gain",
         "reader_advantage",
         "visual_data_decision",
+        "iteration_assessment",
     }
     if set(payload) != required:
-        findings.append(finding("QUALITY_GATE_FIELDS_INVALID", "P1", "Quality gate fields do not match article-quality-gate-v2"))
+        findings.append(finding("QUALITY_GATE_FIELDS_INVALID", "P1", "Quality gate fields do not match article-quality-gate-v3"))
     if payload.get("contract_version") != QUALITY_GATE_VERSION or payload.get("run_id") != manifest.get("run_id"):
         findings.append(finding("QUALITY_GATE_IDENTITY_INVALID", "P1", "Quality gate does not bind to this run and contract version"))
 
@@ -2132,6 +2134,113 @@ def validate_quality_gate(root: Path, manifest: dict[str, Any], findings: list[d
     visual_headings = visual.get("article_headings")
     if not isinstance(visual_headings, list) or not visual_headings or any(not isinstance(item, str) or " ".join(item.casefold().split()) not in headings for item in visual_headings):
         findings.append(finding("QUALITY_VISUAL_HEADINGS_INVALID", "P1", "Visual/data decision must point to one or more real final-draft headings"))
+
+    iteration = payload.get("iteration_assessment")
+    expected_iteration = {
+        "status",
+        "baseline_path",
+        "baseline_sha256",
+        "report_path",
+        "report_sha256",
+        "dimensions",
+        "unresolved_regressions",
+        "humanization",
+        "next_action",
+    }
+    if not isinstance(iteration, dict) or set(iteration) != expected_iteration:
+        findings.append(finding("QUALITY_ITERATION_ASSESSMENT_INVALID", "P1", "Quality gate must record the baseline-to-final iteration assessment"))
+        return
+
+    iteration_status = iteration.get("status")
+    if iteration_status not in {"compared", "not-required"}:
+        findings.append(finding("QUALITY_ITERATION_STATUS_INVALID", "P1", "iteration_assessment.status must be compared or not-required"))
+        return
+    if not substantive_evidence(iteration.get("next_action")):
+        findings.append(finding("QUALITY_ITERATION_NEXT_ACTION_INVALID", "P1", "iteration_assessment must state a substantive next action or stop reason"))
+
+    humanization = iteration.get("humanization")
+    expected_humanization = {"status", "scope", "meaning_preserved", "claim_review_rerun"}
+    if not isinstance(humanization, dict) or set(humanization) != expected_humanization:
+        findings.append(finding("QUALITY_HUMANIZATION_INVALID", "P1", "Iteration assessment must record a bounded humanization review"))
+    else:
+        if humanization.get("status") not in {"applied", "reviewed-no-change"}:
+            findings.append(finding("QUALITY_HUMANIZATION_STATUS_INVALID", "P1", "Humanization status must be applied or reviewed-no-change"))
+        if not substantive_evidence(humanization.get("scope")):
+            findings.append(finding("QUALITY_HUMANIZATION_SCOPE_INVALID", "P1", "Humanization scope must be substantive"))
+        if humanization.get("meaning_preserved") is not True or humanization.get("claim_review_rerun") is not True:
+            findings.append(finding("QUALITY_HUMANIZATION_REVIEW_INCOMPLETE", "P1", "Humanization must preserve meaning and rerun claim review before approval"))
+
+    baseline_path = iteration.get("baseline_path")
+    baseline_sha256 = iteration.get("baseline_sha256")
+    report_path = iteration.get("report_path")
+    report_sha256 = iteration.get("report_sha256")
+    dimensions = iteration.get("dimensions")
+    regressions = iteration.get("unresolved_regressions")
+
+    if iteration_status == "not-required":
+        if depth == "full":
+            findings.append(finding("QUALITY_FULL_ITERATION_REQUIRED", "P1", "Full work requires a compared baseline-to-final iteration before content-ready"))
+        if any(value is not None for value in (baseline_path, baseline_sha256, report_path, report_sha256)) or dimensions or regressions:
+            findings.append(finding("QUALITY_ITERATION_NOT_REQUIRED_CONTRADICTION", "P1", "A not-required iteration must not claim baseline, report, dimensions, or regressions"))
+        return
+
+    if baseline_path != "drafts/baseline.md" or report_path != "research/iteration-report.md":
+        findings.append(finding("QUALITY_ITERATION_PATHS_INVALID", "P1", "Compared iterations must bind the canonical baseline draft and iteration report paths"))
+    baseline = require_file(root, "drafts/baseline.md", findings)
+    report = require_file(root, "research/iteration-report.md", findings)
+    if baseline is not None:
+        baseline_text = baseline.read_text(encoding="utf-8")
+        if not substantive_string(baseline_text) or contains_placeholder(baseline_text):
+            findings.append(finding("QUALITY_ITERATION_BASELINE_INVALID", "P1", "Baseline draft must contain substantive completed prose without placeholders"))
+        if not file_binding_matches(root, "drafts/baseline.md", baseline_sha256):
+            findings.append(finding("QUALITY_ITERATION_BASELINE_BINDING_INVALID", "P1", "Baseline draft checksum does not match the iteration assessment"))
+        elif file_binding_matches(root, "drafts/final.md", baseline_sha256):
+            findings.append(finding("QUALITY_ITERATION_NO_MATERIAL_CHANGE", "P1", "Compared Full work must preserve a distinct baseline and final draft"))
+    if report is not None:
+        report_text = report.read_text(encoding="utf-8")
+        if not substantive_string(report_text) or contains_placeholder(report_text):
+            findings.append(finding("QUALITY_ITERATION_REPORT_INVALID", "P1", "Iteration report must be substantive and free of placeholders"))
+        if not file_binding_matches(root, "research/iteration-report.md", report_sha256):
+            findings.append(finding("QUALITY_ITERATION_REPORT_BINDING_INVALID", "P1", "Iteration report checksum does not match the iteration assessment"))
+
+    if not isinstance(dimensions, list) or not dimensions:
+        findings.append(finding("QUALITY_ITERATION_DIMENSIONS_INVALID", "P1", "Compared iteration requires reader-value dimensions"))
+        dimensions = []
+    seen_dimensions: set[str] = set()
+    regressed_dimensions: set[str] = set()
+    for index, item in enumerate(dimensions):
+        expected_dimension = {"dimension", "outcome", "evidence"}
+        if not isinstance(item, dict) or set(item) != expected_dimension:
+            findings.append(finding("QUALITY_ITERATION_DIMENSION_INVALID", "P1", "Each iteration dimension needs a name, outcome, and evidence", index=index))
+            continue
+        dimension = item.get("dimension")
+        outcome = item.get("outcome")
+        if dimension not in ITERATION_DIMENSIONS or dimension in seen_dimensions:
+            findings.append(finding("QUALITY_ITERATION_DIMENSION_INVALID", "P1", "Iteration dimensions must be unique supported reader-value dimensions", index=index, dimension=dimension))
+        elif isinstance(dimension, str):
+            seen_dimensions.add(dimension)
+        if outcome not in {"improved", "unchanged", "regressed", "not-applicable"} or not substantive_evidence(item.get("evidence")):
+            findings.append(finding("QUALITY_ITERATION_DIMENSION_INVALID", "P1", "Iteration dimensions require a valid outcome and substantive evidence", index=index))
+        if outcome == "regressed" and isinstance(dimension, str):
+            regressed_dimensions.add(dimension)
+    if depth == "full" and seen_dimensions != ITERATION_DIMENSIONS:
+        findings.append(finding("QUALITY_FULL_ITERATION_DIMENSIONS_INCOMPLETE", "P1", "Full work must compare intent, evidence, utility, and voice dimensions", observed=sorted(seen_dimensions)))
+
+    if not isinstance(regressions, list):
+        findings.append(finding("QUALITY_ITERATION_REGRESSIONS_INVALID", "P1", "unresolved_regressions must be an array"))
+        regressions = []
+    if regressed_dimensions and not regressions:
+        findings.append(finding("QUALITY_ITERATION_REGRESSION_UNDISCLOSED", "P1", "Every regressed reader-value dimension needs a visible unresolved-regression record"))
+    for index, regression in enumerate(regressions):
+        expected_regression = {"severity", "description", "next_action"}
+        if not isinstance(regression, dict) or set(regression) != expected_regression:
+            findings.append(finding("QUALITY_ITERATION_REGRESSION_INVALID", "P1", "Each unresolved regression needs severity, description, and next action", index=index))
+            continue
+        severity = regression.get("severity")
+        if severity not in {"P0", "P1", "P2", "P3"} or not substantive_evidence(regression.get("description")) or not substantive_evidence(regression.get("next_action")):
+            findings.append(finding("QUALITY_ITERATION_REGRESSION_INVALID", "P1", "Iteration regression record is incomplete", index=index))
+        elif severity in {"P0", "P1"}:
+            findings.append(finding("QUALITY_ITERATION_HARD_REGRESSION_OPEN", "P1", "Content-ready work cannot retain an unresolved P0 or P1 iteration regression", index=index, severity=severity))
 
 
 def validate_handoff(root: Path, manifest: dict[str, Any], findings: list[dict[str, Any]]) -> None:
@@ -3579,7 +3688,7 @@ def validate_reserved_artifact_nodes(root: Path, findings: list[dict[str, Any]])
 
     reserved_files = (
         "manifest.json", "intake.json", "capabilities.json", "research/serp.json", "research/quality-gate.json",
-        "research/sources.jsonl", "claims.jsonl", "drafts/final.md",
+        "research/iteration-report.md", "research/sources.jsonl", "claims.jsonl", "drafts/baseline.md", "drafts/final.md",
         "reviews/verification.json", "reviews/editorial.json", "reviews/ymyl.json",
         "reviews/technical.json", "reviews/live-verification.json",
         "publish/article.md", "publish/article.mdx", "publish/article.html",

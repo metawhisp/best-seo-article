@@ -23,7 +23,8 @@ matches the request.
   with observed format/length/gaps, a mapped reader path, information gain,
   an evidence-backed content shape, a reasoned visual/data decision, and—at
   Full competitive depth—a demonstrated reader advantage rather than a sourced
-  summary alone.
+  summary alone. Full work also preserves a baseline draft and a bound
+  baseline-to-final report, including a fact-safe humanization review.
 - A passed editorial review must assess intent, truth, information gain,
   utility, clarity, and conversion; a handoff cannot disagree with the run's
   actual status.
@@ -71,9 +72,11 @@ environment, when available.
    source plan before drafting.
 4. Build the evidence-bound brief, then write the article and optional
    visual/data plan.
-5. Run independent claim, editorial, media, technical, and qualified review
+5. Preserve the first evidence-led draft, repair the material reader gap, run a
+   fact-safe humanization pass, and compare baseline to final.
+6. Run independent claim, editorial, media, technical, and qualified review
    where required.
-6. Repair findings, package the final deliverables, and validate the run.
-7. Publish only with recorded permission; verify the live URL separately.
+7. Repair findings, package the final deliverables, and validate the run.
+8. Publish only with recorded permission; verify the live URL separately.
 
 See `SKILL.md` for routing and `references/` for the detailed contracts.

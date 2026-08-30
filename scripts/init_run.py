@@ -201,7 +201,7 @@ def main() -> int:
     write_json(
         root / "research/quality-gate.json",
         {
-            "contract_version": "article-quality-gate-v2",
+            "contract_version": "article-quality-gate-v3",
             "run_id": run_id,
             "operating_depth": None,
             "competitive_standard": None,
@@ -211,6 +211,7 @@ def main() -> int:
             "information_gain": None,
             "reader_advantage": None,
             "visual_data_decision": None,
+            "iteration_assessment": None,
         },
     )
     write_text(root / "research/sources.jsonl")

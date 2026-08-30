@@ -18,9 +18,12 @@ permission to publish.
 5. Turn those decisions into `brief.md` and `outline.md`, then draft from the
    ledgers. Add a table, diagram, screenshot, chart, or video only if it makes a
    reader decision easier; otherwise omit it.
-6. An independent verifier checks each material claim against the actual source.
+6. For Full work, save the first complete draft as `drafts/baseline.md`, repair
+   the smallest material reader gap, perform a fact-safe humanization review,
+   and write the bound baseline-to-final iteration report.
+7. An independent verifier checks each material claim against the actual source.
    An editorial reviewer separately records the six human quality dimensions.
-7. Run the validators. A passed validator proves artifact and lifecycle
+8. Run the validators. A passed validator proves artifact and lifecycle
    mechanics, not that a source is true or an article is useful. Do not create a
    CMS draft or publish until the user separately authorises that mutation.
 

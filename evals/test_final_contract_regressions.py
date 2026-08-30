@@ -517,7 +517,7 @@ class FinalContractRegressions(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result)
             gate = json.loads((output / "research/quality-gate.json").read_text(encoding="utf-8"))
-            self.assertEqual(gate["contract_version"], "article-quality-gate-v2")
+            self.assertEqual(gate["contract_version"], "article-quality-gate-v3")
             self.assertEqual(
                 set(gate),
                 {
@@ -531,6 +531,7 @@ class FinalContractRegressions(unittest.TestCase):
                     "information_gain",
                     "reader_advantage",
                     "visual_data_decision",
+                    "iteration_assessment",
                 },
             )
 
